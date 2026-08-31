@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     E2B_API_KEY: str = ""
     E2B_TEMPLATE_ID: str = ""  # Optional: Custom template ID for faster execution
 
+    # MCP Configuration
+    MCP_ENABLED: bool = False
+    MCP_SERVER_URL: str = ""  # External MCP server URL (optional)
+    MCP_API_KEY: str = ""  # API key for external MCP if required
+    MCP_TIMEOUT: int = 30  # Timeout for MCP requests in seconds
+
+# Railway specific
+RAILWAY_ENVIRONMENT: str = ""  # Set by Railway automatically
+   
+
     # Environment
     ENVIRONMENT: str = "development"
 
