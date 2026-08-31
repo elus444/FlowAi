@@ -48,3 +48,11 @@ async def root():
         "version": "0.1.0",
         "docs": f"{settings.API_V1_STR}/docs"
     }
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "message": "FlowAI API",
+        "version": "0.1.0",
+        "docs": f"{settings.API_V1_STR}/docs"
+    }
