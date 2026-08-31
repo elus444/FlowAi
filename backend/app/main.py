@@ -38,8 +38,6 @@ app.add_middleware(
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
-
-
 @app.get("/")
 async def root():
     """Root endpoint"""
@@ -48,6 +46,7 @@ async def root():
         "version": "0.1.0",
         "docs": f"{settings.API_V1_STR}/docs"
     }
+
 @app.get("/")
 async def root():
     """Root endpoint"""
