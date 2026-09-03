@@ -9,7 +9,12 @@ import type {
 } from '../types/workflow'
 import type { Dataset } from '../types/dataset'
 
-const API_URL = 'http://localhost:8000/api/v1'
+// VITE_API_URL is baked in at build time (Vite only exposes env vars
+// prefixed VITE_ to client code). Was previously hardcoded to
+// http://localhost:8000/api/v1 regardless of environment, which broke
+// every deployment outside local dev -- the browser has no backend on
+// its own localhost.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
 const api = axios.create({
     baseURL: API_URL,
@@ -90,7 +95,11 @@ export const executionApi = {
 
     getWebSocketUrl: (executionId: string) => {
         const token = useAuthStore.getState().token
-        return `ws://localhost:8000/api/v1/executions/${executionId}/ws?token=${token}`
+        // Was hardcoded to ws://localhost:8000/api/v1/...; derive from the
+        // same API_URL instead so it follows the deployed backend, and use
+        // wss:// when the API itself is served over https.
+        const wsBase = API_URL.replace(/^http/, 'ws')
+        return `${wsBase}/executions/${executionId}/ws?token=${token}`
     },
 
     subscribeToExecution: (executionId: string, callbacks: {

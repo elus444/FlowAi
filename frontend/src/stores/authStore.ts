@@ -1,6 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// Was hardcoded to http://localhost:8000/api/v1 in every fetch call below,
+// which broke any deployment outside local dev. Mirrors services/api.ts.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+
 export interface User {
     id: string
     email: string
@@ -42,7 +46,7 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null })
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    const response = await fetch(`${API_URL}/auth/login`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -59,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
                     const token = data.access_token
 
                     // Get user info
-                    const userResponse = await fetch('http://localhost:8000/api/v1/auth/me', {
+                    const userResponse = await fetch(`${API_URL}/auth/me`, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                         },
@@ -94,7 +98,7 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null })
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+                    const response = await fetch(`${API_URL}/auth/register`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
