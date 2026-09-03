@@ -1,18 +1,29 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ .
+# Baked into the client bundle at build time (Vite only exposes env vars
+# prefixed VITE_, and only reads them from actual process env / --build-arg
+# here -- frontend/.env is excluded by .dockerignore, so it never reaches
+# this build). Falls back to the local-dev backend URL if unset.
+ARG VITE_API_URL=http://localhost:8000/api/v1
+ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 FROM nginx:alpine
 
-COPY frontend/nginx.conf /etc/nginx/nginx.conf
+# Template, not a final config: the platform's $PORT (e.g. Railway) is only
+# known at container start, so it's rendered into /tmp/nginx.conf by CMD
+# below rather than baked in at build time. Defaults to 3000 for
+# local/docker-compose use.
+ENV PORT=3000
+COPY frontend/nginx.conf.template /etc/nginx/nginx.conf.template
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 RUN addgroup -g 1001 -S nginx_user && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -c nginx -G nginx_user nginx_user && \
+    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -g nginx -G nginx_user nginx_user && \
     chown -R nginx_user:nginx_user /usr/share/nginx/html && \
     chown -R nginx_user:nginx_user /var/cache/nginx && \
     chown -R nginx_user:nginx_user /var/log/nginx && \
@@ -24,6 +35,10 @@ USER nginx_user
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:3000/ || exit 1
+    CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-3000}/health || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# Render the template with only $PORT substituted (nginx's own config
+# syntax is full of unrelated $variables — a blanket envsubst would
+# mangle those) into a location nginx_user can write, then start nginx
+# against that rendered config.
+CMD ["sh", "-c", "envsubst '$PORT' < /etc/nginx/nginx.conf.template > /tmp/nginx.conf && nginx -c /tmp/nginx.conf -g 'daemon off;'"]

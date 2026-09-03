@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.redis import get_redis
@@ -10,8 +11,9 @@ router = APIRouter()
 async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint"""
     try:
-        # Check database connection
-        db.execute("SELECT 1")
+        # Check database connection. SQLAlchemy 2.x requires raw SQL to be
+        # wrapped in text() -- a bare string raises ObjectNotExecutableError.
+        db.execute(text("SELECT 1"))
 
         # Check Redis connection
         redis = await get_redis()
