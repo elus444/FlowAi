@@ -1,0 +1,101 @@
+# Production stack for a single VM (Oracle Cloud Always Free, or any host).
+# Differs from docker-compose.yml (local dev) in a few deliberate ways:
+#   - postgres/redis publish no host ports -- only reachable from other
+#     containers on the compose network, never from the internet.
+#   - backend/frontend also publish no host ports -- Caddy is the only
+#     thing bound to 80/443, and reverse-proxies to both by container name.
+#   - Caddy gets Let's Encrypt HTTPS automatically for $DOMAIN (see
+#     deploy/Caddyfile and deploy/README.md for how DOMAIN is derived from
+#     the VM's IP with no domain purchase needed).
+#   - Real secrets come from a .env file on the VM itself (see
+#     deploy/.env.production.example) -- never committed.
+#
+# Usage on the VM: docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: flowai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: flowai
+      POSTGRES_USER: flowai
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: flowai-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: flowai-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://flowai:${POSTGRES_PASSWORD}@postgres:5432/flowai
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ORIGINS: https://${DOMAIN}
+      ENVIRONMENT: production
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      E2B_API_KEY: ${E2B_API_KEY:-}
+      MCP_ENABLED: ${MCP_ENABLED:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        # Baked into the client bundle at build time -- must be set before
+        # `docker compose build`, matching whatever $DOMAIN Caddy is using.
+        VITE_API_URL: https://${DOMAIN}/api/v1
+    container_name: flowai-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: flowai-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

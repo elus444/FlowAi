@@ -1,0 +1,17 @@
+# Reverse proxy + automatic HTTPS (Let's Encrypt) for the whole stack.
+# {$DOMAIN} is provided via env var at container start (see docker-compose.prod.yml).
+# Using a sslip.io/nip.io hostname means Caddy can still get a real cert
+# without owning a domain -- those services resolve <name>.<ip>.sslip.io
+# back to <ip>, which is all Let's Encrypt's HTTP-01 challenge needs.
+{$DOMAIN} {
+	# Backend API and its websocket endpoint. Caddy proxies WebSocket
+	# upgrades automatically -- no special config needed.
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Everything else is the frontend SPA.
+	handle {
+		reverse_proxy frontend:3000
+	}
+}
