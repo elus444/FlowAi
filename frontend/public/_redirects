@@ -1,0 +1,5 @@
+# Cloudflare Pages SPA fallback: react-router-dom handles routing
+# client-side, so any direct navigation/refresh on a route like /workflows
+# needs to still serve index.html rather than 404 -- Pages copies this
+# file from Vite's public/ dir straight into the build output root.
+/* /index.html 200

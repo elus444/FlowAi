@@ -1,0 +1,39 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# Deploy: Render dashboard -> New -> Blueprint -> connect this repo.
+# Render prompts for every `sync: false` value during setup -- paste in
+# your Neon connection string, Upstash connection string, and LLM keys.
+services:
+  - type: web
+    name: flowai-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Neon connection string, e.g.
+      # postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      # Upstash Redis connection string (the "redis://" or "rediss://" one
+      # from the Upstash dashboard, not the REST URL).
+      - key: REDIS_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      # Your Cloudflare Pages URL once you have it, e.g.
+      # https://flowai.pages.dev -- update after the frontend is deployed.
+      - key: CORS_ORIGINS
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: E2B_API_KEY
+        sync: false
+      - key: MCP_ENABLED
+        value: "false"
+      - key: ENVIRONMENT
+        value: production
