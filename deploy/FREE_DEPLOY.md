@@ -1,14 +1,19 @@
-# Deploying FlowAI for free: Cloudflare Pages + Render + Neon + Upstash
+# Deploying FlowAI for free: frontend host + Render + Neon + Upstash
 
 No credit card required anywhere in this path, no server to manage. Four
 free accounts, each holding one piece:
 
 | Piece | Provider | Why |
 |---|---|---|
-| Frontend | Cloudflare Pages | Free static hosting, auto HTTPS, builds from GitHub on push |
+| Frontend | Cloudflare Pages, Vercel, **or** Netlify -- pick one | All three: free static hosting, auto HTTPS, builds from GitHub on push |
 | Backend | Render (free web service) | Builds `Dockerfile.backend` directly, no code changes needed |
 | Postgres | Neon | Generous free tier, standard `postgresql://` connection string |
 | Redis | Upstash | Free tier, TLS connection string works with this app as-is |
+
+The repo already has what each frontend host needs: `public/_redirects`
+(Cloudflare Pages and Netlify both use this format) and `vercel.json`
+(Vercel's equivalent). Use whichever host you already have an account on
+-- steps for all three are in section 4.
 
 Trade-off: Render's free web service sleeps after ~15 minutes idle and
 takes ~30-60s to wake on the next request. No cost either way.
@@ -49,32 +54,55 @@ takes ~30-60s to wake on the next request. No cost either way.
    `https://flowai-backend-xxxx.onrender.com` -- copy it, you'll need it
    in step 4.
 
-## 4. Cloudflare Pages (frontend)
+## 4. Frontend: Cloudflare Pages, Vercel, or Netlify
 
-1. In the Cloudflare dashboard: **Workers & Pages → Create → Pages →
+Pick one -- all produce the same result.
+
+### Option A: Cloudflare Pages
+
+1. Cloudflare dashboard → **Workers & Pages → Create → Pages →
    Connect to Git**, select `elus444/FlowAi`.
-2. Build settings:
-   - **Root directory**: `frontend`
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-3. Under **Environment variables**, add:
-   - `VITE_API_URL` = `https://<your-render-url>/api/v1` (from step 3.4)
-4. Deploy. Cloudflare gives you a URL like `https://flowai.pages.dev`.
+2. Build settings: **Root directory** `frontend`, **Build command**
+   `npm run build`, **Build output directory** `dist`.
+3. Under **Environment variables**, add `VITE_API_URL` =
+   `https://<your-render-url>/api/v1` (from step 3.4).
+4. Deploy. You get a URL like `https://flowai.pages.dev`.
+
+### Option B: Vercel
+
+1. Sign up at https://vercel.com (GitHub login, no card).
+2. **Add New → Project**, import `elus444/FlowAi`.
+3. Vercel should auto-detect Vite; if the **Root Directory** field
+   doesn't already say `frontend`, click **Edit** and set it.
+4. Under **Environment Variables**, add `VITE_API_URL` =
+   `https://<your-render-url>/api/v1`.
+5. Deploy. You get a URL like `https://flow-ai-xxxx.vercel.app`.
+
+### Option C: Netlify
+
+1. Sign up at https://netlify.com (GitHub login, no card).
+2. **Add new site → Import an existing project**, select
+   `elus444/FlowAi`.
+3. Build settings: **Base directory** `frontend`, **Build command**
+   `npm run build`, **Publish directory** `frontend/dist`.
+4. Under **Environment variables**, add `VITE_API_URL` =
+   `https://<your-render-url>/api/v1`.
+5. Deploy. You get a URL like `https://flowai-xxxx.netlify.app`.
 
 ## 5. Close the loop: CORS
 
 Go back to the Render dashboard → your service → **Environment**, set
-`CORS_ORIGINS` to your Cloudflare Pages URL from step 4 (e.g.
-`https://flowai.pages.dev`), save -- Render redeploys automatically.
+`CORS_ORIGINS` to your frontend URL from step 4 (whichever host you
+picked), save -- Render redeploys automatically.
 
 ## Verifying it's live
 
 - Backend health: `https://<your-render-url>/health` should return
   `{"status":"ok"}`.
-- Visit your Cloudflare Pages URL, register an account, and confirm
+- Visit your frontend URL, register an account, and confirm
   login/dashboard load.
 
 ## Updating after a `git push`
 
-Both Render and Cloudflare Pages auto-deploy on every push to `main` --
-nothing else to do.
+Render and all three frontend hosts auto-deploy on every push to `main`
+-- nothing else to do.
