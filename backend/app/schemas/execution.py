@@ -23,7 +23,11 @@ class ExecutionLogResponse(BaseModel):
         from_attributes = True
 
 
-class ExecutionResponse(BaseModel):
+class ExecutionSummaryResponse(BaseModel):
+    """Lightweight execution shape for list views. No `logs` -- accessing
+    that relationship per row would trigger a query per execution (N+1),
+    and the history list UI only ever shows status/timestamp anyway.
+    Use ExecutionResponse (single execution) when logs are actually needed."""
     id: UUID
     workflow_id: UUID
     status: ExecutionStatus
@@ -33,7 +37,10 @@ class ExecutionResponse(BaseModel):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     created_at: datetime
-    logs: List[ExecutionLogResponse] = []
 
     class Config:
         from_attributes = True
+
+
+class ExecutionResponse(ExecutionSummaryResponse):
+    logs: List[ExecutionLogResponse] = []

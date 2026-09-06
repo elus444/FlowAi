@@ -8,7 +8,7 @@ import asyncio
 from app.core.database import get_db
 from app.models.workflow import Workflow
 from app.models.execution import Execution, ExecutionStatus, ExecutionLog, LogLevel
-from app.schemas.execution import ExecutionCreate, ExecutionResponse
+from app.schemas.execution import ExecutionCreate, ExecutionResponse, ExecutionSummaryResponse
 from app.services.executor.langgraph_executor import LangGraphDynamicExecutor
 
 router = APIRouter()
@@ -125,7 +125,7 @@ def get_execution(execution_id: UUID, db: Session = Depends(get_db)):
     return execution
 
 
-@router.get("/workflow/{workflow_id}", response_model=List[ExecutionResponse])
+@router.get("/workflow/{workflow_id}", response_model=List[ExecutionSummaryResponse])
 def list_workflow_executions(
     workflow_id: UUID,
     skip: int = 0,

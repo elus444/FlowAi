@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import { Execution } from '../types/workflow'
+import { Execution, ExecutionSummary } from '../types/workflow'
 import { executionApi } from '../services/api'
+import { toast } from './toastStore'
 
 export type NodeExecutionStatus = 'idle' | 'running' | 'completed' | 'failed'
 
@@ -17,9 +18,10 @@ interface ExecutionState {
   isExecuting: boolean
 
   // History & Selection
-  executionHistory: Execution[]
+  executionHistory: ExecutionSummary[]
   selectedExecution: Execution | null
   isLoadingHistory: boolean
+  isLoadingDetails: boolean
 
   // Actions
   startExecution: (executionId: string) => void
@@ -43,6 +45,7 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
   executionHistory: [],
   selectedExecution: null,
   isLoadingHistory: false,
+  isLoadingDetails: false,
 
   startExecution: (executionId) => {
     console.log('🚀 Starting execution in store:', executionId)
@@ -98,6 +101,7 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
       set({ executionHistory: history })
     } catch (error) {
       console.error('Failed to load execution history:', error)
+      toast.error('Failed to load execution history')
     } finally {
       set({ isLoadingHistory: false })
     }
@@ -107,12 +111,19 @@ export const useExecutionStore = create<ExecutionState>((set) => ({
     set({ selectedExecution: execution })
   },
 
+  // Fetches the full execution (including logs) by id -- the history list
+  // itself only carries an ExecutionSummary (no logs, to avoid an N+1 query
+  // fetching every past run's full log set just to render a status list).
   loadExecutionDetails: async (executionId) => {
+    set({ isLoadingDetails: true })
     try {
       const details = await executionApi.get(executionId)
       set({ selectedExecution: details })
     } catch (error) {
       console.error('Failed to load execution details:', error)
+      toast.error('Failed to load execution details')
+    } finally {
+      set({ isLoadingDetails: false })
     }
   }
 }))

@@ -5,6 +5,7 @@ import type {
     WorkflowCreate,
     WorkflowUpdate,
     Execution,
+    ExecutionSummary,
     ExecutionCreate
 } from '../types/workflow'
 import type { Dataset } from '../types/dataset'
@@ -79,7 +80,7 @@ export const workflowApi = {
 
 export const executionApi = {
     list: async (workflowId: string, skip = 0, limit = 50) => {
-        const response = await api.get<Execution[]>(`/executions/workflow/${workflowId}?skip=${skip}&limit=${limit}`)
+        const response = await api.get<ExecutionSummary[]>(`/executions/workflow/${workflowId}?skip=${skip}&limit=${limit}`)
         return response.data
     },
 

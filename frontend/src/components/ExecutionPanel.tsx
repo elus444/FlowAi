@@ -14,7 +14,9 @@ export default function ExecutionPanel() {
     loadHistory,
     selectedExecution,
     selectExecution,
-    isLoadingHistory
+    loadExecutionDetails,
+    isLoadingHistory,
+    isLoadingDetails
   } = useExecutionStore()
 
   const { currentWorkflowId } = useWorkflowStore()
@@ -70,8 +72,10 @@ export default function ExecutionPanel() {
     )
   }
 
-  // If showing details of a past execution
-  if (selectedExecution && isExpanded) {
+  // If showing details of a past execution (or fetching them -- clicking a
+  // history row only has an ExecutionSummary, so the full execution incl.
+  // logs still needs to be fetched before there's anything to render).
+  if ((selectedExecution || isLoadingDetails) && isExpanded) {
     return (
       <div className="fixed bottom-4 right-4 w-[500px] h-[600px] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
@@ -81,10 +85,16 @@ export default function ExecutionPanel() {
             <button onClick={() => selectExecution(null)} className="p-1 hover:bg-gray-200 rounded"><X size={16} /></button>
           </div>
         </div>
-        <ExecutionDetails
-          execution={selectedExecution}
-          onClose={() => selectExecution(null)}
-        />
+        {isLoadingDetails || !selectedExecution ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+          </div>
+        ) : (
+          <ExecutionDetails
+            execution={selectedExecution}
+            onClose={() => selectExecution(null)}
+          />
+        )}
       </div>
     )
   }
@@ -239,7 +249,7 @@ export default function ExecutionPanel() {
                 {executionHistory.map((exec) => (
                   <button
                     key={exec.id}
-                    onClick={() => selectExecution(exec)}
+                    onClick={() => loadExecutionDetails(exec.id)}
                     className="w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-3">
