@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
+import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import WorkflowList from './pages/WorkflowList'
@@ -13,12 +14,16 @@ function App() {
 
   const router = createBrowserRouter([
     {
+      path: "/",
+      element: isAuthenticated ? <Navigate to="/workflows" replace /> : <Home />
+    },
+    {
       path: "/login",
-      element: isAuthenticated ? <Navigate to="/" replace /> : <Login />
+      element: isAuthenticated ? <Navigate to="/workflows" replace /> : <Login />
     },
     {
       path: "/register",
-      element: isAuthenticated ? <Navigate to="/" replace /> : <Register />
+      element: isAuthenticated ? <Navigate to="/workflows" replace /> : <Register />
     },
     {
       element: <ProtectedRoute />,
@@ -26,10 +31,6 @@ function App() {
         {
           element: <Layout />,
           children: [
-            {
-              path: "/",
-              element: <WorkflowList />
-            },
             {
               path: "/workflows",
               element: <WorkflowList />
@@ -48,7 +49,7 @@ function App() {
     },
     {
       path: "*",
-      element: <Navigate to={isAuthenticated ? "/" : "/login"} replace />
+      element: <Navigate to={isAuthenticated ? "/workflows" : "/"} replace />
     }
   ])
 

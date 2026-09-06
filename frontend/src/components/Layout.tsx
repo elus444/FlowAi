@@ -20,7 +20,7 @@ export default function Layout() {
             <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shadow-sm z-10">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-4">
-                        <Link to="/" className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <Link to="/workflows" className="text-xl font-bold text-gray-900 flex items-center gap-2">
                             <span className="bg-blue-600 text-white p-1 rounded">FA</span>
                             FlowAI
                         </Link>
@@ -28,8 +28,8 @@ export default function Layout() {
 
                     <nav className="flex items-center gap-1">
                         <Link
-                            to="/"
-                            className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${isActive('/') || isActive('/workflows')
+                            to="/workflows"
+                            className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${isActive('/workflows')
                                     ? 'bg-blue-50 text-blue-700'
                                     : 'text-gray-600 hover:bg-gray-100'
                                 }`}

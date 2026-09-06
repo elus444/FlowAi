@@ -14,7 +14,7 @@ export default function Login() {
 
         try {
             await login(email, password)
-            navigate('/')
+            navigate('/workflows')
         } catch (error) {
             // Error is handled by store
             console.error('Login failed:', error)
