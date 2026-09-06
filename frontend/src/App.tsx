@@ -7,6 +7,8 @@ import WorkflowList from './pages/WorkflowList'
 import Datasets from './pages/Datasets'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
+import Toaster from './components/Toaster'
+import ConfirmDialogHost from './components/ConfirmDialogHost'
 import { useAuthStore } from './stores/authStore'
 
 function App() {
@@ -53,7 +55,13 @@ function App() {
     }
   ])
 
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster />
+      <ConfirmDialogHost />
+    </>
+  )
 }
 
 export default App

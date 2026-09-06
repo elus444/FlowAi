@@ -8,20 +8,22 @@ export default function Register() {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [fullName, setFullName] = useState('')
+    const [formError, setFormError] = useState('')
     const { register, isLoading, error, clearError } = useAuthStore()
     const navigate = useNavigate()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         clearError()
+        setFormError('')
 
         if (password !== confirmPassword) {
-            alert('Passwords do not match')
+            setFormError('Passwords do not match')
             return
         }
 
         if (password.length < 8) {
-            alert('Password must be at least 8 characters')
+            setFormError('Password must be at least 8 characters')
             return
         }
 
@@ -47,9 +49,9 @@ export default function Register() {
                 </div>
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    {error && (
+                    {(formError || error) && (
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-                            {error}
+                            {formError || error}
                         </div>
                     )}
 

@@ -6,6 +6,8 @@ import { useWorkflowStore } from '@/store/workflowStore'
 import { useExecutionStore } from '@/store/executionStore'
 import { useAuthStore } from '@/stores/authStore'
 import { executionApi } from '@/services/api'
+import { toast } from '@/store/toastStore'
+import { confirmDialog } from '@/store/confirmStore'
 import InputFormModal from './InputFormModal'
 import OutputViewer from './OutputViewer'
 import StateDesigner from './StateDesigner'
@@ -76,7 +78,7 @@ export default function Toolbar() {
     },
     onError: (error: any) => {
       console.error('Execution error:', error)
-      alert('Failed to execute workflow: ' + error.message)
+      toast.error('Failed to execute workflow: ' + error.message)
     },
   })
 
@@ -123,21 +125,21 @@ export default function Toolbar() {
         setShowOutputViewer(true)
       },
       onError: (error) => {
-        console.error('❌ Execution error:', error)
+        console.error('Execution error:', error)
         completeExecution()
-        alert('Execution failed: ' + error)
+        toast.error('Execution failed: ' + error)
       },
     })
   }
 
   const handleExecute = () => {
     if (!currentWorkflowId) {
-      alert('⚠️ Please save the workflow first before executing!')
+      toast.warning('Please save the workflow first before executing.')
       return
     }
 
     if (nodes.length === 0) {
-      alert('⚠️ Workflow is empty. Add some nodes first!')
+      toast.warning('Workflow is empty. Add some nodes first.')
       return
     }
 
@@ -160,7 +162,7 @@ export default function Toolbar() {
       handleExecutionStart(execution)
     } catch (error: any) {
       console.error('Failed to create execution:', error)
-      alert('Failed to start execution: ' + error.message)
+      toast.error('Failed to start execution: ' + error.message)
     }
   }
 
@@ -184,7 +186,7 @@ export default function Toolbar() {
 
   const handleExportCode = async () => {
     if (!currentWorkflowId) {
-      alert('⚠️ Please save the workflow first!')
+      toast.warning('Please save the workflow first.')
       return
     }
 
@@ -211,16 +213,21 @@ export default function Toolbar() {
       a.click()
       URL.revokeObjectURL(url)
 
-      alert('✅ LangGraph code exported successfully!')
+      toast.success('LangGraph code exported successfully.')
     } catch (error) {
       console.error('Export code failed:', error)
-      alert('❌ Failed to export code: ' + (error instanceof Error ? error.message : 'Unknown error'))
+      toast.error('Failed to export code: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 
-  const handleLoadExample = () => {
+  const handleLoadExample = async () => {
     if (nodes.length > 0) {
-      if (!confirm('⚠️ This will replace your current workflow. Continue?')) return
+      const ok = await confirmDialog({
+        message: 'This will replace your current workflow. Continue?',
+        confirmLabel: 'Replace',
+        danger: true,
+      })
+      if (!ok) return
     }
     setNodes(exampleWorkflow.nodes)
     setEdges(exampleWorkflow.edges)
@@ -228,9 +235,14 @@ export default function Toolbar() {
     setName(exampleWorkflow.name)
   }
 
-  const handleLoadConditionalExample = () => {
+  const handleLoadConditionalExample = async () => {
     if (nodes.length > 0) {
-      if (!confirm('⚠️ This will replace your current workflow. Continue?')) return
+      const ok = await confirmDialog({
+        message: 'This will replace your current workflow. Continue?',
+        confirmLabel: 'Replace',
+        danger: true,
+      })
+      if (!ok) return
     }
     setNodes(conditionalWorkflow.nodes)
     setEdges(conditionalWorkflow.edges)

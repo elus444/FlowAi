@@ -1,13 +1,14 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { LogOut, User, LayoutGrid, Database } from 'lucide-react'
+import { confirmDialog } from '@/store/confirmStore'
 
 export default function Layout() {
     const { user, logout } = useAuthStore()
     const location = useLocation()
 
-    const handleLogout = () => {
-        if (confirm('Are you sure you want to logout?')) {
+    const handleLogout = async () => {
+        if (await confirmDialog('Are you sure you want to logout?')) {
             logout()
         }
     }

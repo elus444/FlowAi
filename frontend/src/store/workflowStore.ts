@@ -3,6 +3,7 @@ import { Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges } from 'r
 import type { WorkflowNode } from '@/types/workflow'
 import type { StateField } from '@/components/StateDesigner'
 import { workflowApi } from '@/services/api'
+import { toast } from './toastStore'
 
 interface WorkflowState {
   nodes: WorkflowNode[]
@@ -200,6 +201,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     } catch (error) {
       console.error('Failed to save workflow:', error)
       set({ isSaving: false })
+      toast.error(error instanceof Error ? `Failed to save: ${error.message}` : 'Failed to save workflow.')
       throw error
     }
   },

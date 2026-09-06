@@ -4,6 +4,8 @@ import { Upload, FileText, Trash2, Eye, Database, X, AlertCircle } from 'lucide-
 import { useDropzone } from 'react-dropzone'
 import { datasetApi } from '../services/api'
 import { formatDistanceToNow } from 'date-fns'
+import { toast } from '@/store/toastStore'
+import { confirmDialog } from '@/store/confirmStore'
 import type { Dataset, DatasetPreview } from '../types/dataset'
 
 export default function Datasets() {
@@ -27,7 +29,7 @@ export default function Datasets() {
             queryClient.invalidateQueries({ queryKey: ['datasets'] })
         },
         onError: (error: any) => {
-            alert('Failed to upload dataset: ' + error.message)
+            toast.error('Failed to upload dataset: ' + error.message)
         }
     })
 
@@ -40,6 +42,9 @@ export default function Datasets() {
                 setShowPreview(false)
                 setSelectedDataset(null)
             }
+        },
+        onError: (error: any) => {
+            toast.error('Failed to delete dataset: ' + error.message)
         }
     })
 
@@ -49,6 +54,9 @@ export default function Datasets() {
         onSuccess: (data) => {
             setPreviewData(data)
             setShowPreview(true)
+        },
+        onError: (error: any) => {
+            toast.error('Failed to load preview: ' + error.message)
         }
     })
 
@@ -72,9 +80,15 @@ export default function Datasets() {
         previewMutation.mutate(dataset.id)
     }
 
-    const handleDelete = (id: string, e: React.MouseEvent) => {
+    const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation()
-        if (confirm('Are you sure you want to delete this dataset?')) {
+        const ok = await confirmDialog({
+            title: 'Delete dataset',
+            message: 'Are you sure you want to delete this dataset? This cannot be undone.',
+            confirmLabel: 'Delete',
+            danger: true,
+        })
+        if (ok) {
             deleteMutation.mutate(id)
         }
     }

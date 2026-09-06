@@ -4,6 +4,8 @@ import { Plus, Search, Trash2, Calendar, Play } from 'lucide-react'
 import { useWorkflows, useCreateWorkflow, useDeleteWorkflow } from '../hooks/useWorkflowApi'
 import WorkflowNameModal from '../components/WorkflowNameModal'
 import { formatDistanceToNow } from 'date-fns'
+import { toast } from '@/store/toastStore'
+import { confirmDialog } from '@/store/confirmStore'
 
 export default function WorkflowList() {
     const navigate = useNavigate()
@@ -25,18 +27,24 @@ export default function WorkflowList() {
             navigate(`/workflows/${newWorkflow.id}`)
         } catch (error) {
             console.error('Failed to create workflow:', error)
-            alert('Failed to create workflow')
+            toast.error('Failed to create workflow')
         }
     }
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation()
-        if (confirm('Are you sure you want to delete this workflow? This action cannot be undone.')) {
+        const ok = await confirmDialog({
+            title: 'Delete workflow',
+            message: 'Are you sure you want to delete this workflow? This action cannot be undone.',
+            confirmLabel: 'Delete',
+            danger: true,
+        })
+        if (ok) {
             try {
                 await deleteWorkflow.mutateAsync(id)
             } catch (error) {
                 console.error('Failed to delete workflow:', error)
-                alert('Failed to delete workflow')
+                toast.error('Failed to delete workflow')
             }
         }
     }
