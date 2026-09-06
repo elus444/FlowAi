@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { useWorkflowStore } from '@/store/workflowStore'
+import { toast } from '@/store/toastStore'
 import type { NodeConfigData } from '@/types/workflow'
 
 import { useQuery } from '@tanstack/react-query'
@@ -27,9 +28,8 @@ export default function NodeConfigPanel() {
   }
 
   const onSubmit = (data: NodeConfigData) => {
-    console.log('Saving node config:', data)
     updateNode(selectedNode.id, data)
-    alert(`✅ Node configuration saved!\n\nRemember to click "Save" in the toolbar to persist the workflow.`)
+    toast.success('Node configuration saved. Click "Save" in the toolbar to persist the workflow.')
   }
 
   const renderNodeConfig = () => {

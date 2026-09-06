@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, Info } from 'lucide-react'
+import { toast } from '@/store/toastStore'
 
 export interface StateField {
   name: string
@@ -71,7 +72,7 @@ export default function StateDesigner({ isOpen, onClose, fields: initialFields, 
     }
 
     if (errors.length > 0) {
-      alert('Validation errors:\n' + errors.join('\n'))
+      toast.error('Validation errors:\n' + errors.join('\n'))
       return
     }
 

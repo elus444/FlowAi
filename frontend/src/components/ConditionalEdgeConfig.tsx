@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, GitBranch, AlertCircle } from 'lucide-react'
+import { toast } from '@/store/toastStore'
 import type { ConditionalRoute, ConditionalEdgeData } from '@/types/conditional'
 import type { StateField } from './StateDesigner'
 import type { WorkflowNode } from '@/types/workflow'
@@ -83,7 +84,7 @@ export default function ConditionalEdgeConfig({
     })
 
     if (errors.length > 0) {
-      alert('Validation errors:\n' + errors.join('\n'))
+      toast.error('Validation errors:\n' + errors.join('\n'))
       return
     }
 
