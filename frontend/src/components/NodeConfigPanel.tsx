@@ -75,11 +75,11 @@ export default function NodeConfigPanel() {
               <select
                 {...register('provider')}
                 className="w-full px-3 py-2 border rounded-md"
-                defaultValue="openai"
+                defaultValue="google"
               >
+                <option value="google">Google</option>
                 <option value="openai">OpenAI</option>
                 <option value="anthropic">Anthropic</option>
-                <option value="google">Google</option>
               </select>
             </div>
             <div>
@@ -87,8 +87,14 @@ export default function NodeConfigPanel() {
               <select
                 {...register('model')}
                 className="w-full px-3 py-2 border rounded-md"
-                defaultValue="gpt-4o-mini"
+                defaultValue="gemini-2.5-flash"
               >
+                <optgroup label="Google">
+                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (Most capable)</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
+                  <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite (Fastest & Cheapest)</option>
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                </optgroup>
                 <optgroup label="OpenAI">
                   <option value="gpt-4o">GPT-4o (Latest, Recommended)</option>
                   <option value="gpt-4o-mini">GPT-4o Mini (Fast & Cheap)</option>
@@ -101,11 +107,6 @@ export default function NodeConfigPanel() {
                   <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                   <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                   <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                </optgroup>
-                <optgroup label="Google">
-                  <option value="gemini-pro">Gemini Pro</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                 </optgroup>
               </select>
               <p className="text-xs text-gray-500 mt-1">

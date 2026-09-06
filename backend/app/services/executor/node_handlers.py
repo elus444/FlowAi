@@ -47,9 +47,12 @@ class LLMNodeHandler(NodeHandler):
         """Execute LLM call"""
         node_data = node.get("data", {})
 
-        # Get configuration with proper defaults for None values
-        provider = node_data.get("provider", "openai")
-        model = node_data.get("model", "gpt-4")
+        # Get configuration with proper defaults for None values. Defaults
+        # to Google/Gemini since that's the provider this deployment has a
+        # key configured for -- OpenAI/Anthropic defaults would just fail
+        # with no API key set.
+        provider = node_data.get("provider", "google")
+        model = node_data.get("model", "gemini-2.5-flash")
         prompt = node_data.get("prompt", "")
 
         # Handle None values explicitly
