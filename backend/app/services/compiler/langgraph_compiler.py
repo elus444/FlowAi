@@ -294,7 +294,7 @@ class LangGraphCompiler:
             "palm": "google"
         }
 
-        return provider_map.get(provider, "openai")
+        return provider_map.get(provider, "google")
 
     def _normalize_model(self, model: str, provider: str) -> str:
         """Normalize model name to standard format"""
@@ -327,9 +327,16 @@ class LangGraphCompiler:
         # Google model mappings
         elif provider == "google":
             model_map = {
-                "gemini-pro": "gemini-pro",
-                "gemini": "gemini-pro",
-                "gemini-1.5-pro": "gemini-1.5-pro",
+                "gemini": "gemini-2.5-flash",
+                "gemini-2.5-pro": "gemini-2.5-pro",
+                "gemini-2.5-flash": "gemini-2.5-flash",
+                "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
+                "gemini-2.0-flash": "gemini-2.0-flash",
+                # Older names kept for workflows saved before this default
+                # changed, mapped forward to their still-supported successors.
+                "gemini-pro": "gemini-2.5-flash",
+                "gemini-1.5-pro": "gemini-2.5-pro",
+                "gemini-1.5-flash": "gemini-2.5-flash",
             }
             return model_map.get(model, model)
 
@@ -363,8 +370,8 @@ class LangGraphCompiler:
         """Generate LLM node function"""
         node_id = node["id"]
         config = node.get("data", {})
-        provider_raw = config.get("provider", "openai")
-        model_raw = config.get("model", "gpt-4")
+        provider_raw = config.get("provider", "google")
+        model_raw = config.get("model", "gemini-2.5-flash")
         prompt = config.get("prompt", "")
         output_key = config.get("output_key", "llm_output")
 
