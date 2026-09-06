@@ -50,10 +50,13 @@ jinja2==3.1.4
 # Used by api/endpoints/datasets.py -- also not previously listed.
 pandas==2.2.3
 
-# E2B Code Interpreter for secure code execution.
-# Pinned (rather than the previous open-ended >=) because pip's resolver
-# was hitting "resolution-too-deep" trying to search the combined version
-# space of these against the old langchain==0.1.5-era pins above.
-e2b-code-interpreter==1.0.5
+# E2B Code Interpreter for secure code execution. 1.0.5 was originally
+# pinned to dodge a "resolution-too-deep" conflict against the old
+# langchain==0.1.5-era pins (see above) -- but 1.0.5 predates the
+# Sandbox.create() classmethod this app's executor actually calls
+# (langgraph_executor.py), so every workflow execution failed with
+# AttributeError. Now that langchain is on 0.2.x, latest e2b-code-interpreter
+# installs cleanly with no conflicts and has the API this app expects.
+e2b-code-interpreter==2.9.2
 mcp==1.0.0
 anthropic==0.40.0
