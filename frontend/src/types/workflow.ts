@@ -53,7 +53,10 @@ export interface ExecutionLog {
   timestamp: string
 }
 
-export interface Execution {
+// Matches the backend's lighter list-view schema (no `logs`) -- the
+// history list only shows status/timestamp, and the backend doesn't
+// eagerly fetch logs for every row anymore to avoid N+1 queries.
+export interface ExecutionSummary {
   id: string
   workflow_id: string
   status: ExecutionStatus
@@ -63,6 +66,9 @@ export interface Execution {
   started_at?: string
   completed_at?: string
   created_at: string
+}
+
+export interface Execution extends ExecutionSummary {
   logs: ExecutionLog[]
 }
 
