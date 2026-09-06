@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 
 interface WorkflowNameModalProps {
@@ -22,6 +22,18 @@ export default function WorkflowNameModal({
 }: WorkflowNameModalProps) {
     const [name, setName] = useState(initialName)
     const [description, setDescription] = useState(initialDescription)
+
+    // useState's initial value only applies on first mount -- this modal
+    // stays mounted across open/close cycles (isOpen just toggles what it
+    // renders), so without this, reopening with a different template's
+    // initialName/initialDescription would keep showing whatever was typed
+    // the first time the modal opened.
+    useEffect(() => {
+        if (isOpen) {
+            setName(initialName)
+            setDescription(initialDescription)
+        }
+    }, [isOpen, initialName, initialDescription])
 
     if (!isOpen) return null
 

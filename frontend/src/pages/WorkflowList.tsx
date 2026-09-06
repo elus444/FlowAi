@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { Plus, Search, Trash2, Calendar, Play } from 'lucide-react'
 import { useWorkflows, useCreateWorkflow, useDeleteWorkflow } from '../hooks/useWorkflowApi'
 import WorkflowNameModal from '../components/WorkflowNameModal'
+import TemplateGalleryModal from '../components/TemplateGalleryModal'
 import { formatDistanceToNow } from 'date-fns'
 import { toast } from '@/store/toastStore'
 import { confirmDialog } from '@/store/confirmStore'
+import type { WorkflowTemplate } from '@/templates'
 
 export default function WorkflowList() {
     const navigate = useNavigate()
@@ -13,17 +15,32 @@ export default function WorkflowList() {
     const createWorkflow = useCreateWorkflow()
     const deleteWorkflow = useDeleteWorkflow()
 
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
+
+    const handleSelectTemplate = (template: WorkflowTemplate | null) => {
+        setSelectedTemplate(template)
+        setIsGalleryOpen(false)
+        setIsCreateModalOpen(true)
+    }
 
     const handleCreate = async (name: string, description: string) => {
         try {
             const newWorkflow = await createWorkflow.mutateAsync({
                 name,
                 description,
-                graph_data: { nodes: [], edges: [], state_schema: [] }
+                graph_data: selectedTemplate
+                    ? {
+                        nodes: selectedTemplate.nodes,
+                        edges: selectedTemplate.edges,
+                        state_schema: selectedTemplate.stateSchema,
+                    }
+                    : { nodes: [], edges: [], state_schema: [] }
             })
             setIsCreateModalOpen(false)
+            setSelectedTemplate(null)
             navigate(`/workflows/${newWorkflow.id}`)
         } catch (error) {
             console.error('Failed to create workflow:', error)
@@ -84,7 +101,7 @@ export default function WorkflowList() {
                     <p className="text-gray-500 mt-1">Manage and create your AI workflows</p>
                 </div>
                 <button
-                    onClick={() => setIsCreateModalOpen(true)}
+                    onClick={() => setIsGalleryOpen(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                 >
                     <Plus size={20} />
@@ -110,7 +127,7 @@ export default function WorkflowList() {
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No workflows found</h3>
                     <p className="text-gray-500 mb-6">Get started by creating your first workflow</p>
                     <button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => setIsGalleryOpen(true)}
                         className="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                     >
                         Create Workflow
@@ -157,10 +174,22 @@ export default function WorkflowList() {
                 </div>
             )}
 
+            <TemplateGalleryModal
+                isOpen={isGalleryOpen}
+                onClose={() => setIsGalleryOpen(false)}
+                onSelectTemplate={handleSelectTemplate}
+            />
+
             <WorkflowNameModal
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={() => {
+                    setIsCreateModalOpen(false)
+                    setSelectedTemplate(null)
+                }}
                 onSave={handleCreate}
+                initialName={selectedTemplate?.name ?? ''}
+                initialDescription={selectedTemplate?.description ?? ''}
+                title={selectedTemplate ? `New workflow from "${selectedTemplate.name}"` : 'Create Workflow'}
             />
         </div>
     )
