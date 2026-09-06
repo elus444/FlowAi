@@ -68,3 +68,4 @@ docker-compose.override.yml
 
 # Alembic
 backend/alembic/versions/*.pyc
+frontend/vercel_deploy_payload.json

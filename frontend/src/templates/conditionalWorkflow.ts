@@ -51,8 +51,8 @@ export const conditionalWorkflow = {
       position: { x: 350, y: 250 },
       data: {
         label: "Analyze Sentiment",
-        provider: "openai",
-        model: "gpt-4",
+        provider: "google",
+        model: "gemini-2.5-flash",
         prompt: `Analyze the sentiment of this customer message and respond with ONLY one word: "positive", "negative", or "neutral".
 
 Customer message: {{customer_message}}
@@ -67,8 +67,8 @@ Sentiment:`,
       position: { x: 700, y: 100 },
       data: {
         label: "Positive Response",
-        provider: "openai",
-        model: "gpt-4",
+        provider: "google",
+        model: "gemini-2.5-flash",
         prompt: `The customer has a positive sentiment. Generate an enthusiastic, helpful response to their message.
 
 Customer message: {{customer_message}}
@@ -83,8 +83,8 @@ Response:`,
       position: { x: 700, y: 250 },
       data: {
         label: "Negative Response",
-        provider: "openai",
-        model: "gpt-4",
+        provider: "google",
+        model: "gemini-2.5-flash",
         prompt: `The customer has a negative sentiment. Generate an empathetic, apologetic response that shows we understand their frustration.
 
 Customer message: {{customer_message}}
@@ -99,8 +99,8 @@ Response:`,
       position: { x: 700, y: 400 },
       data: {
         label: "Neutral Response",
-        provider: "openai",
-        model: "gpt-4",
+        provider: "google",
+        model: "gemini-2.5-flash",
         prompt: `The customer has a neutral sentiment. Generate a professional, informative response.
 
 Customer message: {{customer_message}}

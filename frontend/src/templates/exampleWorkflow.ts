@@ -47,8 +47,8 @@ export const exampleWorkflow = {
       position: { x: 350, y: 150 },
       data: {
         label: "Analyze Topic",
-        provider: "openai",
-        model: "gpt-4",
+        provider: "google",
+        model: "gemini-2.5-flash",
         prompt: "Analyze the following research topic in detail: {{topic}}\n\nProvide a comprehensive analysis covering:\n1. Main concepts and definitions\n2. Current state of the field\n3. Key challenges and opportunities\n4. Future directions",
         output_key: "analysis"
       }
@@ -59,8 +59,8 @@ export const exampleWorkflow = {
       position: { x: 650, y: 200 },
       data: {
         label: "Generate Summary",
-        provider: "openai",
-        model: "gpt-4",
+        provider: "google",
+        model: "gemini-2.5-flash",
         prompt: "Based on this analysis:\n\n{{analysis}}\n\nGenerate a concise executive summary with the 3 most important insights.",
         output_key: "summary"
       }
