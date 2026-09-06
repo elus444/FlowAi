@@ -27,7 +27,7 @@ export default function Register() {
 
         try {
             await register(email, username, password, fullName)
-            navigate('/')
+            navigate('/workflows')
         } catch (error) {
             // Error is handled by store
             console.error('Registration failed:', error)
