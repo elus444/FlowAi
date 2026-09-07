@@ -48,7 +48,7 @@ export const exampleWorkflow = {
       data: {
         label: "Analyze Topic",
         provider: "google",
-        model: "gemini-2.5-flash",
+        model: "gemini-3.6-flash",
         prompt: "Analyze the following research topic in detail: {{topic}}\n\nProvide a comprehensive analysis covering:\n1. Main concepts and definitions\n2. Current state of the field\n3. Key challenges and opportunities\n4. Future directions",
         output_key: "analysis"
       }
@@ -60,7 +60,7 @@ export const exampleWorkflow = {
       data: {
         label: "Generate Summary",
         provider: "google",
-        model: "gemini-2.5-flash",
+        model: "gemini-3.6-flash",
         prompt: "Based on this analysis:\n\n{{analysis}}\n\nGenerate a concise executive summary with the 3 most important insights.",
         output_key: "summary"
       }

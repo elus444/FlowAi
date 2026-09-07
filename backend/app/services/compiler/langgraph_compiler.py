@@ -327,16 +327,26 @@ class LangGraphCompiler:
         # Google model mappings
         elif provider == "google":
             model_map = {
-                "gemini": "gemini-2.5-flash",
-                "gemini-2.5-pro": "gemini-2.5-pro",
-                "gemini-2.5-flash": "gemini-2.5-flash",
-                "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
-                "gemini-2.0-flash": "gemini-2.0-flash",
+                "gemini": "gemini-3.6-flash",
+                "gemini-3.8-flash": "gemini-3.8-flash",
+                "gemini-3.7-flash": "gemini-3.7-flash",
+                "gemini-3.6-flash": "gemini-3.6-flash",
+                "gemini-3.5-flash": "gemini-3.5-flash",
+                "gemini-3.1-flash-lite": "gemini-3.1-flash-lite",
+                "gemini-3.1-pro-preview": "gemini-3.1-pro-preview",
                 # Older names kept for workflows saved before this default
                 # changed, mapped forward to their still-supported successors.
-                "gemini-pro": "gemini-2.5-flash",
-                "gemini-1.5-pro": "gemini-2.5-pro",
-                "gemini-1.5-flash": "gemini-2.5-flash",
+                # gemini-2.5-flash itself started 404ing for this account
+                # ("no longer available to new users") after Google's 2.x
+                # generation was retired -- these all resolve to a working
+                # current-gen model instead of a dead one.
+                "gemini-2.5-pro": "gemini-3.1-pro-preview",
+                "gemini-2.5-flash": "gemini-3.6-flash",
+                "gemini-2.5-flash-lite": "gemini-3.1-flash-lite",
+                "gemini-2.0-flash": "gemini-3.6-flash",
+                "gemini-pro": "gemini-3.6-flash",
+                "gemini-1.5-pro": "gemini-3.1-pro-preview",
+                "gemini-1.5-flash": "gemini-3.6-flash",
             }
             return model_map.get(model, model)
 
@@ -371,7 +381,7 @@ class LangGraphCompiler:
         node_id = node["id"]
         config = node.get("data", {})
         provider_raw = config.get("provider", "google")
-        model_raw = config.get("model", "gemini-2.5-flash")
+        model_raw = config.get("model", "gemini-3.6-flash")
         prompt = config.get("prompt", "")
         output_key = config.get("output_key", "llm_output")
 

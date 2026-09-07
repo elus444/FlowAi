@@ -140,7 +140,7 @@ class WorkflowCompiler:
             ])
 
         elif node_type == "llm":
-            model = node_data.get("model", "gemini-2.5-flash")
+            model = node_data.get("model", "gemini-3.6-flash")
             prompt = node_data.get("prompt", "")
             lines.extend([
                 f"    # LLM node - model: {model}",
