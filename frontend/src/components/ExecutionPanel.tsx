@@ -78,7 +78,7 @@ export default function ExecutionPanel() {
   // logs still needs to be fetched before there's anything to render).
   if ((selectedExecution || isLoadingDetails) && isExpanded) {
     return (
-      <div className="fixed bottom-4 right-4 w-[500px] h-[600px] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
+      <div className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-[500px] h-[600px] max-h-[calc(100vh-2rem)] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
           <span className="font-semibold text-sm text-gray-700">Execution Details</span>
           <div className="flex items-center gap-1">
@@ -143,7 +143,7 @@ export default function ExecutionPanel() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 w-[400px] h-[500px] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden transition-all duration-200 ease-in-out">
+    <div className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-[400px] h-[500px] max-h-[calc(100vh-2rem)] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden transition-all duration-200 ease-in-out">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-gray-50 shrink-0">
         <div className="flex items-center gap-2">

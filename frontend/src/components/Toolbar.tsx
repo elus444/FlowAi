@@ -296,8 +296,13 @@ export default function Toolbar() {
 
   return (
     <>
-      <div className="h-16 bg-white border-b border-gray-200 px-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      {/* This row has ~13 interactive elements -- on a phone that's wider
+          than the screen no matter how it's spaced. overflow-x-auto keeps
+          it a horizontally-scrollable strip instead of forcing the whole
+          page into horizontal scroll (shrink-0 on both halves so they
+          scroll as a unit rather than getting visually squashed first). */}
+      <div className="h-16 bg-white border-b border-gray-200 px-4 flex items-center justify-between gap-4 overflow-x-auto">
+        <div className="flex items-center gap-4 shrink-0">
           <button
             onClick={() => navigate('/workflows')}
             className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
@@ -326,7 +331,7 @@ export default function Toolbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleLoadExample}
             className="flex items-center gap-2 px-3 py-1.5 text-sm bg-yellow-50 text-yellow-700 rounded-md hover:bg-yellow-100 border border-yellow-200"

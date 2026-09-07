@@ -310,32 +310,43 @@ export default function NodeConfigPanel() {
   }
 
   return (
-    <div className="w-96 bg-white border-l border-gray-200 p-4 overflow-y-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Configure Node</h2>
-        <button
-          onClick={() => setSelectedNode(null)}
-          className="p-1 hover:bg-gray-100 rounded"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+    <>
+      {/* Backdrop: mobile drawer only, tap outside to dismiss. A fixed
+          384px (w-96) panel as a permanent flex sibling was wider than
+          most phones on its own -- below md this is a full-width overlay
+          instead. */}
+      <div
+        className="fixed inset-0 z-40 bg-black/30 md:hidden"
+        onClick={() => setSelectedNode(null)}
+      />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="px-3 py-2 bg-gray-100 rounded-md text-sm">
-          <div className="font-medium">Type: {selectedNode.type}</div>
-          <div className="text-xs text-gray-600">ID: {selectedNode.id}</div>
+      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-sm overflow-y-auto bg-white p-4 shadow-xl md:static md:z-auto md:w-96 md:max-w-none md:shrink-0 md:border-l md:border-gray-200 md:shadow-none">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Configure Node</h2>
+          <button
+            onClick={() => setSelectedNode(null)}
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {renderNodeConfig()}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="px-3 py-2 bg-gray-100 rounded-md text-sm">
+            <div className="font-medium">Type: {selectedNode.type}</div>
+            <div className="text-xs text-gray-600">ID: {selectedNode.id}</div>
+          </div>
 
-        <button
-          type="submit"
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Save Changes
-        </button>
-      </form>
-    </div>
+          {renderNodeConfig()}
+
+          <button
+            type="submit"
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+    </>
   )
 }
