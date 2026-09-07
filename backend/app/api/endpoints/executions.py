@@ -6,6 +6,8 @@ from datetime import datetime
 import asyncio
 
 from app.core.database import get_db
+from app.core.deps import get_current_user, get_current_user_ws
+from app.models.user import User
 from app.models.workflow import Workflow
 from app.models.execution import Execution, ExecutionStatus, ExecutionLog, LogLevel
 from app.schemas.execution import ExecutionCreate, ExecutionResponse, ExecutionSummaryResponse
@@ -58,14 +60,18 @@ async def _run_execution_background(execution_id: UUID, graph_data: dict):
 @router.post("", response_model=ExecutionResponse, status_code=status.HTTP_201_CREATED)
 async def create_execution(
     execution_create: ExecutionCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Create and start a workflow execution"""
     print(f"📥 Creating execution for workflow: {execution_create.workflow_id}")
 
-    # Verify workflow exists
+    # Verify the workflow exists AND belongs to the requesting user -- without
+    # this check, any authenticated user could execute (and thus read the
+    # output of) anyone else's workflow just by guessing/copying its id.
     workflow = db.query(Workflow).filter(
-        Workflow.id == execution_create.workflow_id
+        Workflow.id == execution_create.workflow_id,
+        Workflow.user_id == current_user.id
     ).first()
 
     if not workflow:
@@ -81,6 +87,7 @@ async def create_execution(
     # Create execution record
     execution = Execution(
         workflow_id=execution_create.workflow_id,
+        user_id=current_user.id,
         input_data=execution_create.input_data,
         status=ExecutionStatus.PENDING,
     )
@@ -114,9 +121,16 @@ async def create_execution(
 
 
 @router.get("/{execution_id}", response_model=ExecutionResponse)
-def get_execution(execution_id: UUID, db: Session = Depends(get_db)):
-    """Get execution details with logs"""
-    execution = db.query(Execution).filter(Execution.id == execution_id).first()
+def get_execution(
+    execution_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get execution details with logs, if it belongs to the current user"""
+    execution = db.query(Execution).filter(
+        Execution.id == execution_id,
+        Execution.user_id == current_user.id
+    ).first()
     if not execution:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -130,12 +144,16 @@ def list_workflow_executions(
     workflow_id: UUID,
     skip: int = 0,
     limit: int = 50,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """List all executions for a workflow"""
+    """List executions for a workflow owned by the current user"""
     executions = (
         db.query(Execution)
-        .filter(Execution.workflow_id == workflow_id)
+        .filter(
+            Execution.workflow_id == workflow_id,
+            Execution.user_id == current_user.id
+        )
         .order_by(Execution.created_at.desc())
         .offset(skip)
         .limit(limit)
@@ -143,9 +161,6 @@ def list_workflow_executions(
     )
     return executions
 
-
-from app.core.deps import get_current_user_ws
-from app.models.user import User
 
 @router.websocket("/{execution_id}/ws")
 async def execution_websocket(
@@ -160,8 +175,13 @@ async def execution_websocket(
     print(f"✅ WebSocket accepted for execution: {execution_id}")
 
     try:
-        # Verify execution exists
-        execution = db.query(Execution).filter(Execution.id == execution_id).first()
+        # Verify the execution exists AND belongs to the connecting user --
+        # get_current_user_ws only proves the token is valid, not that this
+        # execution's logs/output are this user's to watch.
+        execution = db.query(Execution).filter(
+            Execution.id == execution_id,
+            Execution.user_id == current_user.id
+        ).first()
         if not execution:
             print(f"❌ Execution not found: {execution_id}")
             await websocket.send_json({"error": "Execution not found"})
