@@ -47,7 +47,7 @@ export const apiEnrichmentWorkflow = {
       data: {
         label: "Summarize",
         provider: "google",
-        model: "gemini-2.5-flash",
+        model: "gemini-3.6-flash",
         prompt: "Summarize the key points from this API response in plain language:\n\n{{api_response}}",
         output_key: "summary"
       }

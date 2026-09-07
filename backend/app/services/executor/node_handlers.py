@@ -52,7 +52,7 @@ class LLMNodeHandler(NodeHandler):
         # key configured for -- OpenAI/Anthropic defaults would just fail
         # with no API key set.
         provider = node_data.get("provider", "google")
-        model = node_data.get("model", "gemini-2.5-flash")
+        model = node_data.get("model", "gemini-3.6-flash")
         prompt = node_data.get("prompt", "")
 
         # Handle None values explicitly

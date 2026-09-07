@@ -87,13 +87,19 @@ export default function NodeConfigPanel() {
               <select
                 {...register('model')}
                 className="w-full px-3 py-2 border rounded-md"
-                defaultValue="gemini-2.5-flash"
+                defaultValue="gemini-3.6-flash"
               >
+                {/* Google retired the 2.x Gemini generation for new API
+                    keys (calls now 404 with "no longer available to new
+                    users"), so these are all current-gen. Pro-tier models
+                    need a billed Google AI key -- the free tier has zero
+                    quota for them. */}
                 <optgroup label="Google">
-                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (Most capable)</option>
-                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
-                  <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite (Fastest & Cheapest)</option>
-                  <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                  <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended)</option>
+                  <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite (Fastest & Cheapest)</option>
+                  <option value="gemini-3.7-flash">Gemini 3.7 Flash</option>
+                  <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+                  <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview (Most capable, requires billing)</option>
                 </optgroup>
                 <optgroup label="OpenAI">
                   <option value="gpt-4o">GPT-4o (Latest, Recommended)</option>

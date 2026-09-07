@@ -36,7 +36,7 @@ export const simpleQaWorkflow = {
       data: {
         label: "Answer",
         provider: "google",
-        model: "gemini-2.5-flash",
+        model: "gemini-3.6-flash",
         prompt: "Answer the following question clearly and concisely:\n\n{{question}}",
         output_key: "answer"
       }
