@@ -112,7 +112,7 @@ function MiniCanvasPreview() {
       </div>
       <div className="absolute left-[34%] top-[14%] w-28 rounded-lg border-2 border-blue-500 bg-blue-50 px-3 py-2 shadow-md">
         <p className="text-[10px] font-semibold text-blue-700">LLM</p>
-        <p className="text-[9px] text-blue-600">Gemini 2.5</p>
+        <p className="text-[9px] text-blue-600">Gemini 3.6</p>
       </div>
       <div className="absolute left-[34%] top-[54%] w-28 rounded-lg border-2 border-yellow-500 bg-yellow-50 px-3 py-2 shadow-md">
         <p className="text-[10px] font-semibold text-yellow-700">Conditional</p>
@@ -182,7 +182,7 @@ export default function Home() {
             <Zap className="h-3.5 w-3.5" />
             Visual agentic workflow builder
           </div>
-          <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
             Build AI agents
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
