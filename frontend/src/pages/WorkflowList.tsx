@@ -5,6 +5,7 @@ import { useWorkflows, useCreateWorkflow, useDeleteWorkflow } from '../hooks/use
 import WorkflowNameModal from '../components/WorkflowNameModal'
 import TemplateGalleryModal from '../components/TemplateGalleryModal'
 import { formatDistanceToNow } from 'date-fns'
+import { parseApiDate } from '@/lib/date'
 import { toast } from '@/store/toastStore'
 import { confirmDialog } from '@/store/confirmStore'
 import type { WorkflowTemplate } from '@/templates'
@@ -166,7 +167,7 @@ export default function WorkflowList() {
                             <div className="flex items-center text-xs text-gray-400 gap-4 pt-4 border-t border-gray-100">
                                 <div className="flex items-center gap-1">
                                     <Calendar size={14} />
-                                    <span>Updated {formatDistanceToNow(new Date(workflow.updated_at))} ago</span>
+                                    <span>Updated {formatDistanceToNow(parseApiDate(workflow.updated_at))} ago</span>
                                 </div>
                             </div>
                         </div>

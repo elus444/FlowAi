@@ -4,6 +4,7 @@ import { useWorkflowStore } from '@/store/workflowStore'
 import { X, ChevronDown, ChevronUp, Terminal, AlertCircle, Info, CheckCircle, History, Play, Clock, Activity } from 'lucide-react'
 import ExecutionDetails from './ExecutionDetails'
 import { formatDistanceToNow } from 'date-fns'
+import { parseApiDate } from '@/lib/date'
 
 export default function ExecutionPanel() {
   const {
@@ -211,7 +212,7 @@ export default function ExecutionPanel() {
                             </span>
                           )}
                           <span className="text-[10px]">
-                            {new Date(log.timestamp).toLocaleTimeString()}
+                            {parseApiDate(log.timestamp).toLocaleTimeString()}
                           </span>
                         </div>
                         <p className="text-gray-800 break-words leading-relaxed">{log.message}</p>
@@ -267,7 +268,7 @@ export default function ExecutionPanel() {
                           </span>
                           <span className="text-[10px] text-gray-400">•</span>
                           <span className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(exec.created_at), { addSuffix: true })}
+                            {formatDistanceToNow(parseApiDate(exec.created_at), { addSuffix: true })}
                           </span>
                         </div>
                         <div className="text-[10px] text-gray-400 mt-0.5 font-mono">
