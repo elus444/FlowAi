@@ -14,6 +14,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from uuid import UUID
 from sqlalchemy.orm import Session
+import asyncio
 import json
 import os
 
@@ -252,8 +253,8 @@ if __name__ == "__main__":
                     f"🎨 Using custom template: {settings.E2B_TEMPLATE_ID}",
                     {}
                 )
-                sandbox = Sandbox.create(template=settings.E2B_TEMPLATE_ID)
-                
+                sandbox = await asyncio.to_thread(Sandbox.create, template=settings.E2B_TEMPLATE_ID)
+
                 self._add_log(
                     execution_id,
                     None,
@@ -263,7 +264,7 @@ if __name__ == "__main__":
                 )
             else:
                 # Default sandbox without template
-                sandbox = Sandbox.create()
+                sandbox = await asyncio.to_thread(Sandbox.create)
                 
                 self._add_log(
                     execution_id,
@@ -282,7 +283,9 @@ if __name__ == "__main__":
                     {}
                 )
 
-                install_result = sandbox.run_code("""
+                install_result = await asyncio.to_thread(
+                    sandbox.run_code,
+                    """
 import subprocess
 import sys
 
@@ -300,7 +303,8 @@ for package in packages:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", package])
 
 print("✅ All packages installed")
-""")
+"""
+                )
 
                 if install_result.error:
                     raise RuntimeError(f"Failed to install dependencies: {install_result.error.name}: {install_result.error.value}")
@@ -327,7 +331,10 @@ print("✅ All packages installed")
                 )
                 
                 # Create datasets directory
-                sandbox.run_code("import os; os.makedirs('/home/user/datasets', exist_ok=True)")
+                await asyncio.to_thread(
+                    sandbox.run_code,
+                    "import os; os.makedirs('/home/user/datasets', exist_ok=True)"
+                )
                 
                 for node in dataset_nodes:
                     dataset_id = node.get("data", {}).get("dataset_id")
@@ -355,7 +362,7 @@ print("✅ All packages installed")
                         # Upload to sandbox
                         # We use .csv extension by default as per compiler logic
                         remote_path = f"/home/user/datasets/{dataset_id}.csv"
-                        sandbox.files.write(remote_path, file_content)
+                        await asyncio.to_thread(sandbox.files.write, remote_path, file_content)
                         
                         self._add_log(
                             execution_id,
@@ -390,7 +397,8 @@ print("✅ All packages installed")
                 {}
             )
 
-            exec_result = sandbox.run_code(
+            exec_result = await asyncio.to_thread(
+                sandbox.run_code,
                 execution_wrapper,
                 envs=env_vars
             )
@@ -484,7 +492,7 @@ print("✅ All packages installed")
                 raise RuntimeError(f"Invalid JSON output: {str(e)}")
 
             # Close sandbox
-            sandbox.kill()
+            await asyncio.to_thread(sandbox.kill)
 
             self._add_log(
                 execution_id,
