@@ -141,6 +141,7 @@ function WorkflowCanvasInner() {
           fitView
           snapToGrid
           snapGrid={[15, 15]}
+          deleteKeyCode={['Delete', 'Backspace']}
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           <Controls />
