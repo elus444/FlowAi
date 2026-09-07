@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, DragEvent as ReactDragEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, DragEvent as ReactDragEvent } from 'react'
 import ReactFlow, {
   Background,
   Controls,
@@ -7,6 +7,7 @@ import ReactFlow, {
   ReactFlowProvider,
   ConnectionMode,
   Edge as ReactFlowEdge,
+  useReactFlow,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 
@@ -34,6 +35,59 @@ function WorkflowCanvasInner() {
 
   const [showConditionalConfig, setShowConditionalConfig] = useState(false)
   const [selectedEdge, setSelectedEdge] = useState<ReactFlowEdge | null>(null)
+  const reactFlowInstance = useReactFlow()
+
+  // Tap-to-add (NodePalette, for touch devices) places new nodes at fixed
+  // grid coordinates near the origin with no idea what part of the canvas
+  // is actually in view -- if the user had panned/zoomed away, or enough
+  // nodes had already piled up, the new node landed off-screen with
+  // nothing indicating where. Desktop drag-and-drop already drops the
+  // node under the cursor (visible by construction), so this only needs
+  // to act when a node was added WITHOUT a corresponding drag, which we
+  // can't observe directly -- instead, react to exactly one node being
+  // appended (bulk template loads change the count by more than one, and
+  // that's what the canvas's own `fitView` prop is already for) and pan
+  // to it only if it isn't already visible.
+  const hasMountedRef = useRef(false)
+  const prevNodeCountRef = useRef(nodes.length)
+  useEffect(() => {
+    const prevCount = prevNodeCountRef.current
+    prevNodeCountRef.current = nodes.length
+
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true
+      return
+    }
+
+    if (nodes.length !== prevCount + 1) return
+
+    const newest = nodes[nodes.length - 1]
+    const bounds = reactFlowWrapper.current?.getBoundingClientRect()
+    if (!bounds) return
+
+    const { x: panX, y: panY, zoom } = reactFlowInstance.getViewport()
+    // Approximate the node's center (not just its top-left position) so
+    // the visibility check and the pan target both line up with what the
+    // user actually sees.
+    const nodeCenterX = newest.position.x + 90
+    const nodeCenterY = newest.position.y + 30
+    const screenX = nodeCenterX * zoom + panX
+    const screenY = nodeCenterY * zoom + panY
+
+    const margin = 60
+    const isVisible =
+      screenX > margin &&
+      screenX < bounds.width - margin &&
+      screenY > margin &&
+      screenY < bounds.height - margin
+
+    if (!isVisible) {
+      reactFlowInstance.setCenter(nodeCenterX, nodeCenterY, {
+        zoom: Math.max(zoom, 0.75),
+        duration: 300,
+      })
+    }
+  }, [nodes, reactFlowInstance])
 
   const onDragOver = useCallback((event: ReactDragEvent) => {
     event.preventDefault()
