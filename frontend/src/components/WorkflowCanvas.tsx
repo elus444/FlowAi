@@ -16,18 +16,7 @@ import { useWorkflowStore } from '@/store/workflowStore'
 import ConditionalEdgeConfig from './ConditionalEdgeConfig'
 import type { WorkflowNode } from '@/types/workflow'
 import type { ConditionalEdgeData } from '@/types/conditional'
-
-// Node counters for meaningful IDs
-const nodeCounters: Record<string, number> = {}
-
-const getNodeId = (type: string): string => {
-  if (!nodeCounters[type]) {
-    nodeCounters[type] = 1
-  }
-  const id = `${type}_${nodeCounters[type]}`
-  nodeCounters[type]++
-  return id
-}
+import { getNodeId, getNodeTypeLabel } from '@/lib/nodeIds'
 
 function WorkflowCanvasInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
@@ -69,12 +58,15 @@ function WorkflowCanvasInner() {
         y: event.clientY - reactFlowBounds.top,
       }
 
+      const id = getNodeId(type)
       const newNode: WorkflowNode = {
-        id: getNodeId(type),
+        id,
         type,
         position,
         data: {
-          label: `${type.charAt(0).toUpperCase() + type.slice(1)} ${nodeCounters[type] - 1}`,
+          // id is "<type>_<n>" -- reuse that same n in the label instead
+          // of tracking a second counter.
+          label: `${getNodeTypeLabel(type)} ${id.split('_').pop()}`,
         },
       }
 
