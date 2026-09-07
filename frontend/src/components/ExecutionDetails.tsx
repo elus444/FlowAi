@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDuration, intervalToDuration } from 'date-fns'
+import { parseApiDate } from '@/lib/date'
 import {
     CheckCircle,
     XCircle,
@@ -48,9 +49,21 @@ export default function ExecutionDetails({ execution, onClose }: ExecutionDetail
         }
     }
 
-    const duration = execution.completed_at && execution.started_at
-        ? formatDistanceToNow(new Date(execution.started_at), { addSuffix: false })
-        : 'Unknown'
+    // The actual run time (started_at -> completed_at), not "how long ago
+    // it started" -- formatDistanceToNow(started_at) was being displayed
+    // as "Duration" before, which measured against the current time
+    // instead of completion and grew forever as the page stayed open.
+    const durationMs = execution.started_at && execution.completed_at
+        ? parseApiDate(execution.completed_at).getTime() - parseApiDate(execution.started_at).getTime()
+        : null
+    const duration = durationMs === null
+        ? 'Unknown'
+        : durationMs < 1000
+            ? `${Math.max(durationMs, 0)}ms`
+            : formatDuration(
+                intervalToDuration({ start: 0, end: durationMs }),
+                { format: ['hours', 'minutes', 'seconds'] }
+            ) || '0 seconds'
 
     return (
         <div className="h-full flex flex-col bg-white">
@@ -67,7 +80,7 @@ export default function ExecutionDetails({ execution, onClose }: ExecutionDetail
                     <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <div className="flex items-center gap-1.5">
                             <Calendar size={14} />
-                            {new Date(execution.created_at).toLocaleString()}
+                            {parseApiDate(execution.created_at).toLocaleString()}
                         </div>
                         {execution.completed_at && (
                             <div className="flex items-center gap-1.5">
@@ -122,7 +135,7 @@ export default function ExecutionDetails({ execution, onClose }: ExecutionDetail
                                         <div className="mt-0.5">{getLevelIcon(log.level)}</div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1 text-xs text-gray-500">
-                                                <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
+                                                <span>{parseApiDate(log.timestamp).toLocaleTimeString()}</span>
                                                 {log.node_id && (
                                                     <span className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-700">
                                                         {log.node_id}

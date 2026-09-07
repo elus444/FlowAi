@@ -4,6 +4,7 @@ import type { WorkflowNode } from '@/types/workflow'
 import type { StateField } from '@/components/StateDesigner'
 import { workflowApi } from '@/services/api'
 import { toast } from './toastStore'
+import { parseApiDate } from '@/lib/date'
 
 // A point-in-time copy of everything undo/redo can restore. Deep-cloned
 // (via structuredClone) when captured so later mutations to the live
@@ -274,7 +275,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         nodes: workflow.graph_data.nodes || [],
         edges: workflow.graph_data.edges || [],
         stateSchema: workflow.graph_data.state_schema || [],
-        lastSaved: new Date(workflow.updated_at),
+        lastSaved: parseApiDate(workflow.updated_at),
         hasUnsavedChanges: false,
         // A freshly loaded workflow starts with a clean slate -- undo
         // history from whatever was open before has nothing to do with it.
@@ -303,7 +304,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         }
       })
       set({
-        lastSaved: new Date(workflow.updated_at),
+        lastSaved: parseApiDate(workflow.updated_at),
         isSaving: false,
         hasUnsavedChanges: false
       })
@@ -329,7 +330,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         nodes: [],
         edges: [],
         stateSchema: [],
-        lastSaved: new Date(workflow.created_at),
+        lastSaved: parseApiDate(workflow.created_at),
         hasUnsavedChanges: false,
         past: [],
         future: []
