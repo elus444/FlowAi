@@ -5,6 +5,17 @@ import type { StateField } from '@/components/StateDesigner'
 import { workflowApi } from '@/services/api'
 import { toast } from './toastStore'
 
+// A point-in-time copy of everything undo/redo can restore. Deep-cloned
+// (via structuredClone) when captured so later mutations to the live
+// nodes/edges arrays can't reach back and corrupt a saved snapshot.
+interface HistorySnapshot {
+  nodes: WorkflowNode[]
+  edges: Edge[]
+  stateSchema: StateField[]
+}
+
+const HISTORY_LIMIT = 50
+
 interface WorkflowState {
   nodes: WorkflowNode[]
   edges: Edge[]
@@ -16,6 +27,11 @@ interface WorkflowState {
   isSaving: boolean
   lastSaved: Date | null
   hasUnsavedChanges: boolean
+
+  // Undo/redo history. `past`/`future` hold snapshots; the *current*
+  // nodes/edges/stateSchema are not duplicated into either stack.
+  past: HistorySnapshot[]
+  future: HistorySnapshot[]
 
   // Actions
   setName: (name: string) => void
@@ -32,6 +48,11 @@ interface WorkflowState {
   deleteNode: (nodeId: string) => void
   setSelectedNode: (node: WorkflowNode | null) => void
   clearWorkflow: () => void
+
+  // Undo/redo
+  pushHistory: () => void
+  undo: () => void
+  redo: () => void
 
   // Persistence
   loadWorkflow: (id: string) => Promise<void>
@@ -51,15 +72,87 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   lastSaved: null,
   hasUnsavedChanges: false,
 
+  past: [],
+  future: [],
+
+  // Snapshots the current graph onto the undo stack and clears redo (a
+  // fresh edit invalidates whatever "future" undo had rewound past).
+  // Call this BEFORE applying a change, so the snapshot captures the
+  // state to go back to.
+  pushHistory: () => {
+    const { nodes, edges, stateSchema, past } = get()
+    const snapshot: HistorySnapshot =
+      typeof structuredClone === 'function'
+        ? structuredClone({ nodes, edges, stateSchema })
+        : JSON.parse(JSON.stringify({ nodes, edges, stateSchema }))
+    set({
+      past: [...past, snapshot].slice(-HISTORY_LIMIT),
+      future: []
+    })
+  },
+
+  undo: () => {
+    const { past, future, nodes, edges, stateSchema } = get()
+    if (past.length === 0) return
+    const previous = past[past.length - 1]
+    const current: HistorySnapshot =
+      typeof structuredClone === 'function'
+        ? structuredClone({ nodes, edges, stateSchema })
+        : JSON.parse(JSON.stringify({ nodes, edges, stateSchema }))
+    set({
+      nodes: previous.nodes,
+      edges: previous.edges,
+      stateSchema: previous.stateSchema,
+      past: past.slice(0, -1),
+      future: [current, ...future],
+      hasUnsavedChanges: true
+    })
+  },
+
+  redo: () => {
+    const { past, future, nodes, edges, stateSchema } = get()
+    if (future.length === 0) return
+    const next = future[0]
+    const current: HistorySnapshot =
+      typeof structuredClone === 'function'
+        ? structuredClone({ nodes, edges, stateSchema })
+        : JSON.parse(JSON.stringify({ nodes, edges, stateSchema }))
+    set({
+      nodes: next.nodes,
+      edges: next.edges,
+      stateSchema: next.stateSchema,
+      past: [...past, current],
+      future: future.slice(1),
+      hasUnsavedChanges: true
+    })
+  },
+
   setName: (name) => set({ name, hasUnsavedChanges: true }),
   setDescription: (description) => set({ description, hasUnsavedChanges: true }),
   setNodes: (nodes) => set({ nodes, hasUnsavedChanges: true }),
 
   setEdges: (edges) => set({ edges, hasUnsavedChanges: true }),
 
+  // Doesn't push history itself -- callers that use this on its own (e.g.
+  // the state schema editor's Save button) should call pushHistory() first;
+  // callers that replace nodes/edges/schema together (e.g. loading a
+  // template) push once before the whole batch instead of once per field.
   setStateSchema: (schema) => set({ stateSchema: schema, hasUnsavedChanges: true }),
 
   onNodesChange: (changes) => {
+    // Snapshot before removals and before a drag *finishes* (dragging:
+    // false) -- not on every intermediate 'position' event mid-drag, or
+    // the undo stack would fill with one entry per pixel of movement.
+    // Pure selection changes don't touch graph content, so they're
+    // never history-worthy.
+    const isSignificant = changes.some(
+      (c: any) =>
+        c.type === 'remove' ||
+        c.type === 'add' ||
+        (c.type === 'position' && c.dragging === false)
+    )
+    if (isSignificant) get().pushHistory()
+
     set({
       nodes: applyNodeChanges(changes, get().nodes),
       hasUnsavedChanges: true
@@ -67,6 +160,11 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   onEdgesChange: (changes) => {
+    const isSignificant = changes.some(
+      (c: any) => c.type === 'remove' || c.type === 'add'
+    )
+    if (isSignificant) get().pushHistory()
+
     set({
       edges: applyEdgeChanges(changes, get().edges),
       hasUnsavedChanges: true
@@ -97,6 +195,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     }
 
     console.log('✅ Creating edge:', connection)
+    get().pushHistory()
     const newEdges = addEdge(connection, get().edges)
     console.log('📊 Total edges after adding:', newEdges.length)
 
@@ -107,6 +206,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   addNode: (node) => {
+    get().pushHistory()
     set({
       nodes: [...get().nodes, node],
       hasUnsavedChanges: true
@@ -115,6 +215,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   updateNode: (nodeId, data) => {
     console.log('Updating node:', nodeId, 'with data:', data)
+    get().pushHistory()
     const updatedNodes = get().nodes.map((node) =>
       node.id === nodeId
         ? { ...node, data: { ...node.data, ...data } }
@@ -126,6 +227,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   updateEdge: (edgeId, updates) => {
     console.log('Updating edge:', edgeId, 'with updates:', updates)
+    get().pushHistory()
     const updatedEdges = get().edges.map((edge) =>
       edge.id === edgeId
         ? { ...edge, ...updates }
@@ -136,6 +238,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   deleteNode: (nodeId) => {
+    get().pushHistory()
     set({
       nodes: get().nodes.filter((node) => node.id !== nodeId),
       edges: get().edges.filter(
@@ -156,7 +259,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     description: '',
     currentWorkflowId: null,
     lastSaved: null,
-    hasUnsavedChanges: false
+    hasUnsavedChanges: false,
+    past: [],
+    future: []
   }),
 
   loadWorkflow: async (id) => {
@@ -170,7 +275,11 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         edges: workflow.graph_data.edges || [],
         stateSchema: workflow.graph_data.state_schema || [],
         lastSaved: new Date(workflow.updated_at),
-        hasUnsavedChanges: false
+        hasUnsavedChanges: false,
+        // A freshly loaded workflow starts with a clean slate -- undo
+        // history from whatever was open before has nothing to do with it.
+        past: [],
+        future: []
       })
     } catch (error) {
       console.error('Failed to load workflow:', error)
@@ -221,7 +330,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         edges: [],
         stateSchema: [],
         lastSaved: new Date(workflow.created_at),
-        hasUnsavedChanges: false
+        hasUnsavedChanges: false,
+        past: [],
+        future: []
       })
       return workflow.id
     } catch (error) {

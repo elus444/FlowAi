@@ -1,4 +1,5 @@
 import { Play, Brain, Globe, GitBranch, FileOutput, Database } from 'lucide-react'
+import { useWorkflowStore } from '@/store/workflowStore'
 
 interface NodePaletteProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void
@@ -50,6 +51,11 @@ const nodeDefinitions = [
 ]
 
 export default function NodePalette({ onDragStart }: NodePaletteProps) {
+  // Only useful before there's anything on the canvas yet -- once the
+  // workflow has nodes, showing "drag nodes onto the canvas" is stale
+  // advice rather than a helpful tip.
+  const hasNodes = useWorkflowStore((state) => state.nodes.length > 0)
+
   return (
     <div className="w-64 bg-white border-r border-gray-200 p-4">
       <h2 className="text-lg font-semibold mb-4">Nodes</h2>
@@ -77,10 +83,12 @@ export default function NodePalette({ onDragStart }: NodePaletteProps) {
         })}
       </div>
 
-      <div className="mt-6 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-        <p className="font-medium mb-1">Tip:</p>
-        <p>Drag and drop nodes onto the canvas to build your workflow</p>
-      </div>
+      {!hasNodes && (
+        <div className="mt-6 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
+          <p className="font-medium mb-1">Tip:</p>
+          <p>Drag and drop nodes onto the canvas to build your workflow</p>
+        </div>
+      )}
     </div>
   )
 }

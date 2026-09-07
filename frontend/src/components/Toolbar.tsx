@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Save, Play, Download, Code, Settings, Database, Lightbulb, GitBranch, ArrowLeft } from 'lucide-react'
+import { Save, Play, Download, Code, Settings, Database, Lightbulb, GitBranch, ArrowLeft, Undo2, Redo2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useWorkflowStore } from '@/store/workflowStore'
 import { useExecutionStore } from '@/store/executionStore'
@@ -29,7 +29,12 @@ export default function Toolbar() {
     saveWorkflow,
     isSaving,
     lastSaved,
-    currentWorkflowId
+    currentWorkflowId,
+    pushHistory,
+    undo,
+    redo,
+    past,
+    future
   } = useWorkflowStore()
 
   const {
@@ -229,6 +234,10 @@ export default function Toolbar() {
       })
       if (!ok) return
     }
+    // One snapshot before the whole batch, so undo restores the prior
+    // graph in a single step instead of unwinding nodes/edges/schema
+    // as three separate history entries.
+    pushHistory()
     setNodes(exampleWorkflow.nodes)
     setEdges(exampleWorkflow.edges)
     setStateSchema(exampleWorkflow.stateSchema)
@@ -244,11 +253,46 @@ export default function Toolbar() {
       })
       if (!ok) return
     }
+    pushHistory()
     setNodes(conditionalWorkflow.nodes)
     setEdges(conditionalWorkflow.edges)
     setStateSchema(conditionalWorkflow.stateSchema)
     setName(conditionalWorkflow.name)
   }
+
+  // Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z (or Ctrl+Y) to redo, Ctrl/Cmd+S to
+  // save -- skipped while typing in an input/textarea/contenteditable so
+  // e.g. undoing a text edit in the workflow name field still works
+  // natively instead of popping the graph history stack.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      const isTyping =
+        target?.tagName === 'INPUT' ||
+        target?.tagName === 'TEXTAREA' ||
+        target?.isContentEditable
+
+      const mod = e.ctrlKey || e.metaKey
+      if (!mod) return
+
+      if (!isTyping && e.key.toLowerCase() === 'z' && e.shiftKey) {
+        e.preventDefault()
+        redo()
+      } else if (!isTyping && e.key.toLowerCase() === 'z') {
+        e.preventDefault()
+        undo()
+      } else if (!isTyping && e.key.toLowerCase() === 'y') {
+        e.preventDefault()
+        redo()
+      } else if (e.key.toLowerCase() === 's') {
+        e.preventDefault()
+        saveWorkflow().catch(() => {})
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [undo, redo, saveWorkflow])
 
   return (
     <>
@@ -301,6 +345,26 @@ export default function Toolbar() {
           <div className="h-6 w-px bg-gray-200 mx-2" />
 
           <button
+            onClick={() => undo()}
+            disabled={past.length === 0}
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => redo()}
+            disabled={future.length === 0}
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Redo (Ctrl+Shift+Z)"
+          >
+            <Redo2 className="w-4 h-4" />
+          </button>
+
+          <div className="h-6 w-px bg-gray-200 mx-2" />
+
+          <button
             onClick={() => setShowStateDesigner(true)}
             className="flex items-center gap-2 px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50"
           >
@@ -316,6 +380,7 @@ export default function Toolbar() {
           <button
             onClick={() => saveWorkflow()}
             disabled={isSaving}
+            title="Save (Ctrl+S)"
             className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
@@ -376,7 +441,10 @@ export default function Toolbar() {
         isOpen={showStateDesigner}
         onClose={() => setShowStateDesigner(false)}
         fields={stateSchema}
-        onSave={(fields) => setStateSchema(fields)}
+        onSave={(fields) => {
+          pushHistory()
+          setStateSchema(fields)
+        }}
       />
 
       <StateInspector
