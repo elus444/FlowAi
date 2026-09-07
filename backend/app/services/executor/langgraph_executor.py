@@ -468,7 +468,16 @@ print("✅ All packages installed")
             if not exec_result.logs.stdout:
                 raise RuntimeError("No output from workflow execution")
 
-            output_text = exec_result.logs.stdout[-1] if exec_result.logs.stdout else "{}"
+            # E2B's logs.stdout is a list of raw stdout chunks, not
+            # necessarily one clean line per entry -- a trailing newline
+            # from the final print can arrive as its own (empty) chunk,
+            # so stdout[-1] isn't reliably the JSON line: it was
+            # intermittently grabbing "" instead and failing to parse with
+            # "Expecting value: line 1 column 1 (char 0)". Join everything
+            # back into one stream, then take the last non-blank line.
+            full_stdout = "".join(exec_result.logs.stdout)
+            non_blank_lines = [line for line in full_stdout.splitlines() if line.strip()]
+            output_text = non_blank_lines[-1] if non_blank_lines else "{}"
 
             self._add_log(
                 execution_id,
