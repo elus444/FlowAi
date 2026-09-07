@@ -4,7 +4,9 @@ from typing import List
 from uuid import UUID
 
 from app.core.database import get_db
+from app.core.deps import get_current_user
 from app.models.workflow import Workflow
+from app.models.user import User
 from app.schemas.workflow import (
     WorkflowCreate,
     WorkflowUpdate,
@@ -20,9 +22,10 @@ router = APIRouter()
 @router.post("", response_model=WorkflowResponse, status_code=status.HTTP_201_CREATED)
 async def create_workflow(
     workflow: WorkflowCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Create a new workflow"""
+    """Create a new workflow, owned by the requesting user"""
     # Compile the workflow to validate it
     compiler = WorkflowCompiler()
     compiled_code = None
@@ -38,6 +41,7 @@ async def create_workflow(
 
     # Create database entry
     db_workflow = Workflow(
+        user_id=current_user.id,
         name=workflow.name,
         description=workflow.description,
         graph_data=workflow.graph_data.model_dump(),
@@ -54,17 +58,31 @@ async def create_workflow(
 def list_workflows(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """List all workflows"""
-    workflows = db.query(Workflow).offset(skip).limit(limit).all()
+    """List workflows owned by the current user"""
+    workflows = (
+        db.query(Workflow)
+        .filter(Workflow.user_id == current_user.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return workflows
 
 
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
-def get_workflow(workflow_id: UUID, db: Session = Depends(get_db)):
-    """Get a specific workflow"""
-    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+def get_workflow(
+    workflow_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get a specific workflow, if it belongs to the current user"""
+    workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.user_id == current_user.id
+    ).first()
     if not workflow:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -77,10 +95,14 @@ def get_workflow(workflow_id: UUID, db: Session = Depends(get_db)):
 async def update_workflow(
     workflow_id: UUID,
     workflow_update: WorkflowUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Update a workflow"""
-    db_workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+    """Update a workflow, if it belongs to the current user"""
+    db_workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.user_id == current_user.id
+    ).first()
     if not db_workflow:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -108,7 +130,7 @@ async def update_workflow(
             print(f"⚠️ Compilation failed (saving anyway): {str(e)}")
             # We allow saving invalid workflows
             compiled_code = None
-            
+
         update_data["compiled_code"] = compiled_code
         # Ensure graph_data is a dict for storage
         update_data["graph_data"] = graph_dict
@@ -123,9 +145,16 @@ async def update_workflow(
 
 
 @router.delete("/{workflow_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_workflow(workflow_id: UUID, db: Session = Depends(get_db)):
-    """Delete a workflow"""
-    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+def delete_workflow(
+    workflow_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a workflow, if it belongs to the current user"""
+    workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.user_id == current_user.id
+    ).first()
     if not workflow:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -138,7 +167,11 @@ def delete_workflow(workflow_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.get("/{workflow_id}/compile")
-async def compile_workflow(workflow_id: UUID, db: Session = Depends(get_db)):
+async def compile_workflow(
+    workflow_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """
     Compile workflow to executable LangGraph Python code.
 
@@ -147,8 +180,11 @@ async def compile_workflow(workflow_id: UUID, db: Session = Depends(get_db)):
     - Deployed to LangGraph Platform
     - Imported into LangGraph Studio for debugging
     """
-    # Get workflow
-    workflow = db.query(Workflow).filter(Workflow.id == workflow_id).first()
+    # Get workflow (scoped to the current user)
+    workflow = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.user_id == current_user.id
+    ).first()
     if not workflow:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
