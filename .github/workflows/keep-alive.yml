@@ -1,0 +1,24 @@
+name: Keep backend warm
+
+# Render's free tier spins the backend web service down entirely after
+# ~15 minutes with no requests -- the next real visitor then eats a
+# multi-second cold start waiting for it to boot back up. Pinging the
+# health endpoint well inside that window keeps it always warm, so every
+# visitor gets a fast response instead of only whoever happens to arrive
+# right after someone else already paid the cold-start cost.
+#
+# GitHub's own scheduler can run a few minutes late under load, so this
+# fires every 10 minutes to leave real margin against the 15-minute
+# spin-down rather than cutting it close at 14.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          curl -fsS --max-time 20 https://flowai-backend-ohio.onrender.com/api/v1/health
