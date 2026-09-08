@@ -189,9 +189,19 @@ function WorkflowCanvasInner() {
           snapGrid={[15, 15]}
           deleteKeyCode={['Delete', 'Backspace']}
         >
-          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+          <Background
+            variant={BackgroundVariant.Dots}
+            gap={12}
+            size={1}
+            color="#334155"
+            style={{ backgroundColor: '#020617' }}
+          />
           <Controls />
-          <MiniMap />
+          <MiniMap
+            nodeColor="#1e293b"
+            nodeStrokeColor="#475569"
+            maskColor="rgba(2, 6, 23, 0.7)"
+          />
         </ReactFlow>
       </div>
 

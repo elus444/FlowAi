@@ -301,11 +301,11 @@ export default function Toolbar() {
           it a horizontally-scrollable strip instead of forcing the whole
           page into horizontal scroll (shrink-0 on both halves so they
           scroll as a unit rather than getting visually squashed first). */}
-      <div className="h-16 bg-white border-b border-gray-200 px-4 flex items-center justify-between gap-4 overflow-x-auto">
+      <div className="h-16 bg-slate-950 border-b border-white/10 px-4 flex items-center justify-between gap-4 overflow-x-auto">
         <div className="flex items-center gap-4 shrink-0">
           <button
             onClick={() => navigate('/workflows')}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 text-slate-400 hover:bg-white/10 hover:text-white rounded-full transition-colors"
             title="Back to Workflows"
           >
             <ArrowLeft size={20} />
@@ -316,12 +316,12 @@ export default function Toolbar() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="font-bold text-gray-900 border-none focus:ring-0 p-0 text-lg"
+              className="font-bold text-white bg-transparent border-none focus:ring-0 p-0 text-lg placeholder-slate-500"
               placeholder="Workflow Name"
             />
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
               {isSaving ? (
-                <span className="text-blue-600">Saving...</span>
+                <span className="text-emerald-400">Saving...</span>
               ) : lastSaved ? (
                 <span>Saved {lastSaved.toLocaleTimeString()}</span>
               ) : (
@@ -334,25 +334,25 @@ export default function Toolbar() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleLoadExample}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-yellow-50 text-yellow-700 rounded-md hover:bg-yellow-100 border border-yellow-200"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-amber-400/10 text-amber-300 rounded-md hover:bg-amber-400/20 border border-amber-400/20"
           >
             <Lightbulb className="w-4 h-4" />
             Basic
           </button>
           <button
             onClick={handleLoadConditionalExample}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-orange-50 text-orange-700 rounded-md hover:bg-orange-100 border border-orange-200"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-orange-400/10 text-orange-300 rounded-md hover:bg-orange-400/20 border border-orange-400/20"
           >
             <GitBranch className="w-4 h-4" />
             Conditional
           </button>
 
-          <div className="h-6 w-px bg-gray-200 mx-2" />
+          <div className="h-6 w-px bg-white/10 mx-2" />
 
           <button
             onClick={() => undo()}
             disabled={past.length === 0}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 text-slate-400 hover:bg-white/10 hover:text-white rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 className="w-4 h-4" />
@@ -361,22 +361,22 @@ export default function Toolbar() {
           <button
             onClick={() => redo()}
             disabled={future.length === 0}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 text-slate-400 hover:bg-white/10 hover:text-white rounded-md disabled:opacity-30 disabled:cursor-not-allowed"
             title="Redo (Ctrl+Shift+Z)"
           >
             <Redo2 className="w-4 h-4" />
           </button>
 
-          <div className="h-6 w-px bg-gray-200 mx-2" />
+          <div className="h-6 w-px bg-white/10 mx-2" />
 
           <button
             onClick={() => setShowStateDesigner(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm border border-white/10 text-slate-300 rounded-md hover:bg-white/5"
           >
             <Settings className="w-4 h-4" />
             Schema
             {stateSchema.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+              <span className="ml-1 px-1.5 py-0.5 bg-emerald-400/10 text-emerald-400 text-xs rounded-full">
                 {stateSchema.length}
               </span>
             )}
@@ -386,7 +386,7 @@ export default function Toolbar() {
             onClick={() => saveWorkflow()}
             disabled={isSaving}
             title="Save (Ctrl+S)"
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-500 text-white font-medium rounded-md hover:bg-blue-400 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             Save
@@ -395,18 +395,18 @@ export default function Toolbar() {
           <button
             onClick={handleExecute}
             disabled={executeMutation.isPending}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-emerald-400 text-slate-950 font-semibold rounded-md hover:bg-emerald-300 disabled:opacity-50"
           >
             <Play className="w-4 h-4" />
             Run
           </button>
 
-          <div className="h-6 w-px bg-gray-200 mx-2" />
+          <div className="h-6 w-px bg-white/10 mx-2" />
 
           <button
             onClick={handleExportCode}
             disabled={!currentWorkflowId}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md disabled:opacity-50"
+            className="p-2 text-slate-400 hover:bg-white/10 hover:text-white rounded-md disabled:opacity-50"
             title="Export Code"
           >
             <Code className="w-4 h-4" />
@@ -414,7 +414,7 @@ export default function Toolbar() {
 
           <button
             onClick={handleExport}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md"
+            className="p-2 text-slate-400 hover:bg-white/10 hover:text-white rounded-md"
             title="Export JSON"
           >
             <Download className="w-4 h-4" />
@@ -422,7 +422,7 @@ export default function Toolbar() {
 
           <button
             onClick={() => setShowStateInspector(true)}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md"
+            className="p-2 text-slate-400 hover:bg-white/10 hover:text-white rounded-md"
             title="State Inspector"
           >
             <Database className="w-4 h-4" />

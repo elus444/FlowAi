@@ -104,19 +104,19 @@ export default function ConditionalEdgeConfig({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+      <div className="bg-slate-900 rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <GitBranch className="w-5 h-5 text-orange-600" />
             <div>
               <h2 className="text-xl font-bold">Configure Conditional Routing</h2>
-              <p className="text-sm text-gray-500">Source: {sourceNodeId}</p>
+              <p className="text-sm text-slate-500">Source: {sourceNodeId}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -125,8 +125,8 @@ export default function ConditionalEdgeConfig({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {/* Info Banner */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-emerald-400/10 border border-blue-200 rounded-lg flex gap-3">
+            <AlertCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">Conditional routing evaluates expressions in order.</p>
               <p>Use Python syntax to check state values. Example: <code className="bg-blue-100 px-1 rounded">state['sentiment'] == 'positive'</code></p>
@@ -138,10 +138,10 @@ export default function ConditionalEdgeConfig({
 
           {/* Routes */}
           <div className="space-y-4 mb-6">
-            <h3 className="font-semibold text-gray-700">Routes (evaluated in order)</h3>
+            <h3 className="font-semibold text-slate-300">Routes (evaluated in order)</h3>
 
             {routes.map((route, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div key={index} className="border border-white/10 rounded-lg p-4 bg-white/[0.03]">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-700 text-sm font-medium flex items-center justify-center">
@@ -151,7 +151,7 @@ export default function ConditionalEdgeConfig({
                       type="text"
                       value={route.label}
                       onChange={(e) => updateRoute(index, 'label', e.target.value)}
-                      className="px-3 py-1 border border-gray-300 rounded-md font-medium"
+                      className="px-3 py-1 border border-white/10 rounded-md font-medium"
                       placeholder="Branch label"
                     />
                   </div>
@@ -167,30 +167,30 @@ export default function ConditionalEdgeConfig({
                 <div className="space-y-3">
                   {/* Expression */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-300 mb-1">
                       Condition Expression
                     </label>
                     <input
                       type="text"
                       value={route.expression}
                       onChange={(e) => updateRoute(index, 'expression', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+                      className="w-full px-3 py-2 border border-white/10 rounded-md font-mono text-sm"
                       placeholder="state['field'] == 'value'"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       Python expression that returns True/False
                     </p>
                   </div>
 
                   {/* Target */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-300 mb-1">
                       Target Node
                     </label>
                     <select
                       value={route.target}
                       onChange={(e) => updateRoute(index, 'target', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-white/10 rounded-md"
                     >
                       <option value="">-- Select target --</option>
                       {targetOptions.map(node => (
@@ -203,14 +203,14 @@ export default function ConditionalEdgeConfig({
 
                   {/* Output Key (auto-generated but editable) */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-300 mb-1">
                       Output Key (for routing function)
                     </label>
                     <input
                       type="text"
                       value={route.output}
                       onChange={(e) => updateRoute(index, 'output', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+                      className="w-full px-3 py-2 border border-white/10 rounded-md font-mono text-sm"
                       placeholder="branch_1"
                     />
                   </div>
@@ -220,7 +220,7 @@ export default function ConditionalEdgeConfig({
 
             <button
               onClick={addRoute}
-              className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors w-full justify-center"
+              className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-white/10 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors w-full justify-center"
             >
               <Plus className="w-4 h-4" />
               Add Route
@@ -228,15 +228,15 @@ export default function ConditionalEdgeConfig({
           </div>
 
           {/* Default Route */}
-          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h3 className="font-semibold text-gray-700 mb-3">Default Route (Optional)</h3>
-            <p className="text-sm text-gray-600 mb-3">
+          <div className="border border-white/10 rounded-lg p-4 bg-white/[0.03]">
+            <h3 className="font-semibold text-slate-300 mb-3">Default Route (Optional)</h3>
+            <p className="text-sm text-slate-400 mb-3">
               If no conditions match, route to this node:
             </p>
             <select
               value={defaultTarget}
               onChange={(e) => setDefaultTarget(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-white/10 rounded-md"
             >
               <option value="">-- No default (raise error) --</option>
               {targetOptions.map(node => (
@@ -249,14 +249,14 @@ export default function ConditionalEdgeConfig({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        <div className="px-6 py-4 border-t border-white/10 bg-white/[0.03] flex items-center justify-between">
+          <div className="text-sm text-slate-400">
             {routes.length} route{routes.length !== 1 ? 's' : ''} configured
           </div>
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
             >
               Cancel
             </button>

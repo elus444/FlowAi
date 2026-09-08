@@ -56,7 +56,7 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
 
     if (keys.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-slate-500">
           <p>No output data available</p>
         </div>
       )
@@ -69,30 +69,30 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
           const isExpanded = expandedSections.has(key)
 
           return (
-            <div key={key} className="border border-gray-200 rounded-lg overflow-hidden">
+            <div key={key} className="border border-white/10 rounded-lg overflow-hidden">
               {/* Section Header */}
               <button
                 onClick={() => toggleSection(key)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.03] hover:bg-white/10 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-gray-600" />
+                    <ChevronDown className="w-4 h-4 text-slate-400" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   )}
-                  <span className="font-semibold text-gray-900 capitalize">
+                  <span className="font-semibold text-white capitalize">
                     {key.replace(/_/g, ' ')}
                   </span>
                 </div>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-slate-500">
                   {typeof value === 'string' ? `${value.length} chars` : typeof value}
                 </span>
               </button>
 
               {/* Section Content */}
               {isExpanded && (
-                <div className="p-4 bg-white">
+                <div className="p-4 bg-slate-900">
                   {typeof value === 'string' ? (
                     // Try to render as markdown if it looks like formatted text
                     value.includes('\n') || value.includes('#') || value.includes('**') ? (
@@ -100,14 +100,14 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
                         <ReactMarkdown>{value}</ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="text-gray-700">{value}</p>
+                      <p className="text-slate-300">{value}</p>
                     )
                   ) : typeof value === 'object' ? (
-                    <pre className="bg-gray-50 p-3 rounded text-xs overflow-x-auto">
+                    <pre className="bg-white/[0.03] p-3 rounded text-xs overflow-x-auto">
                       {JSON.stringify(value, null, 2)}
                     </pre>
                   ) : (
-                    <p className="text-gray-700">{String(value)}</p>
+                    <p className="text-slate-300">{String(value)}</p>
                   )}
                 </div>
               )}
@@ -120,9 +120,9 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className="bg-slate-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div>
             <h2 className="text-lg font-semibold">Workflow Output</h2>
             <div className="flex items-center gap-3 mt-1">
@@ -136,7 +136,7 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
                 {executionData.status}
               </span>
               {executionData.completed_at && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-slate-500">
                   {new Date(executionData.completed_at).toLocaleString()}
                 </span>
               )}
@@ -145,25 +145,25 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="p-2 hover:bg-gray-100 rounded"
+              className="p-2 hover:bg-white/10 rounded"
               title="Copy to clipboard"
             >
               {copied ? (
                 <Check className="w-4 h-4 text-green-600" />
               ) : (
-                <Copy className="w-4 h-4 text-gray-600" />
+                <Copy className="w-4 h-4 text-slate-400" />
               )}
             </button>
             <button
               onClick={handleDownload}
-              className="p-2 hover:bg-gray-100 rounded"
+              className="p-2 hover:bg-white/10 rounded"
               title="Download JSON"
             >
-              <Download className="w-4 h-4 text-gray-600" />
+              <Download className="w-4 h-4 text-slate-400" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded"
+              className="p-2 hover:bg-white/10 rounded"
             >
               <X className="w-5 h-5" />
             </button>
@@ -171,13 +171,13 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
         </div>
 
         {/* View Mode Tabs */}
-        <div className="flex items-center gap-1 px-6 py-2 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center gap-1 px-6 py-2 border-b border-white/10 bg-white/[0.03]">
           <button
             onClick={() => setViewMode('formatted')}
             className={`px-3 py-1 rounded text-sm ${
               viewMode === 'formatted'
-                ? 'bg-white text-blue-600 shadow'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-slate-900 text-emerald-400 shadow'
+                : 'text-slate-400 hover:bg-white/10'
             }`}
           >
             Formatted
@@ -186,8 +186,8 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
             onClick={() => setViewMode('json')}
             className={`px-3 py-1 rounded text-sm ${
               viewMode === 'json'
-                ? 'bg-white text-blue-600 shadow'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-slate-900 text-emerald-400 shadow'
+                : 'text-slate-400 hover:bg-white/10'
             }`}
           >
             JSON
@@ -196,8 +196,8 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
             onClick={() => setViewMode('raw')}
             className={`px-3 py-1 rounded text-sm ${
               viewMode === 'raw'
-                ? 'bg-white text-blue-600 shadow'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-slate-900 text-emerald-400 shadow'
+                : 'text-slate-400 hover:bg-white/10'
             }`}
           >
             Raw
@@ -214,24 +214,24 @@ export default function OutputViewer({ isOpen, onClose, executionData }: OutputV
           ) : viewMode === 'formatted' ? (
             renderFormattedOutput()
           ) : viewMode === 'json' ? (
-            <pre className="bg-gray-50 p-4 rounded text-sm overflow-x-auto">
+            <pre className="bg-white/[0.03] p-4 rounded text-sm overflow-x-auto">
               {JSON.stringify(output, null, 2)}
             </pre>
           ) : (
-            <pre className="bg-gray-50 p-4 rounded text-sm overflow-x-auto whitespace-pre-wrap">
+            <pre className="bg-white/[0.03] p-4 rounded text-sm overflow-x-auto whitespace-pre-wrap">
               {JSON.stringify(output)}
             </pre>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
-          <div className="text-xs text-gray-500">
-            Execution ID: <code className="bg-gray-200 px-1 rounded">{executionData.id}</code>
+        <div className="px-6 py-4 border-t border-white/10 bg-white/[0.03] flex justify-between items-center">
+          <div className="text-xs text-slate-500">
+            Execution ID: <code className="bg-white/10 text-slate-300 px-1 rounded">{executionData.id}</code>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="px-4 py-2 bg-white/10 text-slate-200 rounded-md hover:bg-white/20"
           >
             Close
           </button>

@@ -61,14 +61,14 @@ export default function Dashboard() {
 
     if (id && !currentWorkflowId) {
         return (
-            <div className="flex items-center justify-center h-full">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="flex items-center justify-center h-full bg-slate-950">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400"></div>
             </div>
         )
     }
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col bg-slate-950">
             <UnsavedChangesDialog isDirty={hasUnsavedChanges} />
             <Toolbar />
             <div className="flex-1 flex overflow-hidden relative">
@@ -84,7 +84,7 @@ export default function Dashboard() {
                         a quarter of a phone screen permanently. */}
                     <button
                         onClick={() => setIsPaletteOpen(true)}
-                        className="md:hidden absolute left-3 top-3 z-30 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-md"
+                        className="md:hidden absolute left-3 top-3 z-30 flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-sm font-medium text-slate-200 shadow-md"
                     >
                         <LayoutGrid className="w-4 h-4" />
                         Nodes

@@ -44,7 +44,7 @@ export default function ConditionalEdge({
             }}
             className="nodrag nopan"
           >
-            <div className="px-2 py-1 bg-orange-100 border border-orange-300 rounded text-xs font-medium text-orange-800">
+            <div className="px-2 py-1 bg-orange-500/10 border border-orange-500/30 rounded text-xs font-medium text-orange-300">
               {label}
             </div>
           </div>

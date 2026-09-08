@@ -16,18 +16,18 @@ export default function Layout() {
     const isActive = (path: string) => location.pathname === path
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50">
+        <div className="h-screen flex flex-col bg-slate-950">
             {/* Header. Labels collapse to icon-only below sm and the email
                 pill hides entirely below md -- at full width (nav labels +
                 a full email address + "Logout") this was one of a few
                 fixed-width, non-wrapping rows on the site wide enough to
                 force the *entire page* into horizontal scroll on a phone,
                 independent of whatever page's content sat below it. */}
-            <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between gap-2 shadow-sm z-10">
+            <div className="bg-slate-950/90 backdrop-blur-sm border-b border-white/10 px-4 py-2 flex items-center justify-between gap-2 z-10">
                 <div className="flex items-center gap-3 sm:gap-8 min-w-0">
                     <div className="flex items-center gap-4 shrink-0">
-                        <Link to="/workflows" className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                            <span className="bg-blue-600 text-white p-1 rounded">FA</span>
+                        <Link to="/workflows" className="text-xl font-bold text-white flex items-center gap-2">
+                            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-blue-500 text-xs font-bold text-slate-950">FA</span>
                             <span className="hidden sm:inline">FlowAI</span>
                         </Link>
                     </div>
@@ -37,8 +37,8 @@ export default function Layout() {
                             to="/workflows"
                             title="Workflows"
                             className={`flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${isActive('/workflows')
-                                    ? 'bg-blue-50 text-blue-700'
-                                    : 'text-gray-600 hover:bg-gray-100'
+                                    ? 'bg-emerald-400/10 text-emerald-400'
+                                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                                 }`}
                         >
                             <LayoutGrid size={18} />
@@ -48,8 +48,8 @@ export default function Layout() {
                             to="/datasets"
                             title="Datasets"
                             className={`flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${isActive('/datasets')
-                                    ? 'bg-blue-50 text-blue-700'
-                                    : 'text-gray-600 hover:bg-gray-100'
+                                    ? 'bg-emerald-400/10 text-emerald-400'
+                                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                                 }`}
                         >
                             <Database size={18} />
@@ -61,16 +61,16 @@ export default function Layout() {
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                     <div
                         title={user?.email}
-                        className="hidden md:flex items-center gap-2 text-sm px-3 py-1.5 bg-gray-50 rounded-full border border-gray-200 max-w-[14rem]"
+                        className="hidden md:flex items-center gap-2 text-sm px-3 py-1.5 bg-white/5 rounded-full border border-white/10 max-w-[14rem]"
                     >
-                        <User size={16} className="text-gray-500 shrink-0" />
-                        <span className="text-gray-700 font-medium truncate">{user?.email}</span>
+                        <User size={16} className="text-slate-500 shrink-0" />
+                        <span className="text-slate-300 font-medium truncate">{user?.email}</span>
                     </div>
 
                     <button
                         onClick={handleLogout}
                         title="Logout"
-                        className="flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors"
+                        className="flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-md transition-colors"
                     >
                         <LogOut size={16} />
                         <span className="hidden sm:inline">Logout</span>

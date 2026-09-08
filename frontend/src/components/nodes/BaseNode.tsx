@@ -30,11 +30,11 @@ const BaseNode = memo(({
   const getStatusStyles = () => {
     switch (nodeStatus) {
       case 'running':
-        return 'ring-2 ring-yellow-400 animate-pulse bg-yellow-50'
+        return 'ring-2 ring-yellow-400 animate-pulse bg-yellow-400/10'
       case 'completed':
-        return 'ring-2 ring-green-500 bg-green-50'
+        return 'ring-2 ring-green-500 bg-green-500/10'
       case 'failed':
-        return 'ring-2 ring-red-500 bg-red-50'
+        return 'ring-2 ring-red-500 bg-red-500/10'
       default:
         return ''
     }
@@ -56,8 +56,8 @@ const BaseNode = memo(({
   return (
     <div
       className={cn(
-        'px-4 py-3 shadow-md rounded-md bg-white border-2 transition-all duration-300 relative',
-        selected ? 'ring-2 ring-blue-500' : '',
+        'px-4 py-3 shadow-lg rounded-md bg-slate-900 text-slate-100 border-2 transition-all duration-300 relative',
+        selected ? 'ring-2 ring-emerald-400' : '',
         color,
         getStatusStyles()
       )}
