@@ -26,42 +26,42 @@ const nodeDefinitions = [
     type: 'trigger',
     label: 'Trigger',
     icon: Play,
-    color: 'bg-green-100 border-green-300 text-green-700',
+    color: 'bg-green-500/10 border-green-500/30 text-green-400',
     description: 'Start the workflow',
   },
   {
     type: 'llm',
     label: 'LLM',
     icon: Brain,
-    color: 'bg-blue-100 border-blue-300 text-blue-700',
+    color: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
     description: 'Call an LLM',
   },
   {
     type: 'api',
     label: 'API Call',
     icon: Globe,
-    color: 'bg-purple-100 border-purple-300 text-purple-700',
+    color: 'bg-purple-500/10 border-purple-500/30 text-purple-400',
     description: 'Make HTTP request',
   },
   {
     type: 'conditional',
     label: 'Conditional',
     icon: GitBranch,
-    color: 'bg-yellow-100 border-yellow-300 text-yellow-700',
+    color: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
     description: 'Branch logic',
   },
   {
     type: 'output',
     label: 'Output',
     icon: FileOutput,
-    color: 'bg-red-100 border-red-300 text-red-700',
+    color: 'bg-red-500/10 border-red-500/30 text-red-400',
     description: 'Final output',
   },
   {
     type: 'dataset',
     label: 'Dataset',
     icon: Database,
-    color: 'bg-indigo-100 border-indigo-300 text-indigo-700',
+    color: 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400',
     description: 'Load a dataset',
   },
 ]
@@ -84,16 +84,16 @@ export default function NodePalette({ onDragStart, onAddNode, isOpen, onClose }:
 
       <div
         className={`
-          fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto bg-white p-4 shadow-xl
+          fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto bg-slate-950 p-4 shadow-xl
           transition-transform duration-200
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           md:static md:z-auto md:w-64 md:shrink-0 md:translate-x-0 md:border-r
-          md:border-gray-200 md:shadow-none
+          md:border-white/10 md:shadow-none
         `}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Nodes</h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded md:hidden">
+          <h2 className="text-lg font-semibold text-white">Nodes</h2>
+          <button onClick={onClose} className="p-1 hover:bg-white/10 text-slate-300 rounded md:hidden">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -119,8 +119,8 @@ export default function NodePalette({ onDragStart, onAddNode, isOpen, onClose }:
                   }
                 }}
                 className={`
-                  flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer
-                  hover:shadow-md transition-shadow
+                  flex items-center gap-3 p-3 rounded-lg border cursor-pointer
+                  backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-lg
                   ${node.color}
                 `}
               >
@@ -135,8 +135,8 @@ export default function NodePalette({ onDragStart, onAddNode, isOpen, onClose }:
         </div>
 
         {!hasNodes && (
-          <div className="mt-6 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-            <p className="font-medium mb-1">Tip:</p>
+          <div className="mt-6 p-3 bg-white/5 border border-white/10 rounded-lg text-xs text-slate-400">
+            <p className="font-medium mb-1 text-slate-300">Tip:</p>
             <p>Drag a node onto the canvas, or tap one to add it</p>
           </div>
         )}

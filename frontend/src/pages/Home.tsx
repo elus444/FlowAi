@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react'
+import GlowBackground from '@/components/GlowBackground'
 
 const FEATURES = [
   {
@@ -73,23 +74,6 @@ const STEPS = [
 // doesn't have named customers to show off, and a "trusted by" row of
 // logos that aren't actually using the product would be misleading.
 const POWERED_BY = ['LangGraph', 'E2B Sandboxes', 'Google Gemini', 'OpenAI', 'Anthropic']
-
-function GlowField() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-slate-950">
-      <div className="absolute left-1/2 top-[-10%] h-[36rem] w-[52rem] -translate-x-1/2 rounded-full bg-emerald-500/20 blur-[120px]" />
-      <div className="absolute right-[-10%] top-[20%] h-[28rem] w-[28rem] rounded-full bg-blue-600/20 blur-[120px]" />
-      <div className="absolute left-[-10%] top-[55%] h-[26rem] w-[26rem] rounded-full bg-indigo-600/10 blur-[120px]" />
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
-    </div>
-  )
-}
 
 function MiniCanvasPreview() {
   return (
@@ -161,7 +145,7 @@ function MiniCanvasPreview() {
 export default function Home() {
   return (
     <div className="min-h-screen text-slate-100">
-      <GlowField />
+      <GlowBackground />
 
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-md">

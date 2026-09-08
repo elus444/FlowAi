@@ -4,6 +4,7 @@ import { Upload, FileText, Trash2, Eye, Database, X, AlertCircle } from 'lucide-
 import { useDropzone } from 'react-dropzone'
 import { datasetApi } from '../services/api'
 import { formatDistanceToNow } from 'date-fns'
+import { parseApiDate } from '@/lib/date'
 import { toast } from '@/store/toastStore'
 import { confirmDialog } from '@/store/confirmStore'
 import type { Dataset, DatasetPreview } from '../types/dataset'
@@ -102,13 +103,13 @@ export default function Datasets() {
     }
 
     return (
-        <div className="h-full flex flex-col bg-gray-50">
+        <div className="h-full flex flex-col bg-slate-950">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-8 py-6">
+            <div className="bg-slate-950 border-b border-white/10 px-8 py-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Datasets</h1>
-                        <p className="text-gray-500 mt-1">Manage your data sources for workflows</p>
+                        <h1 className="text-2xl font-bold text-white">Datasets</h1>
+                        <p className="text-slate-400 mt-1">Manage your data sources for workflows</p>
                     </div>
                 </div>
             </div>
@@ -120,28 +121,28 @@ export default function Datasets() {
                     <div
                         {...getRootProps()}
                         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${isDragActive
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                            ? 'border-emerald-400 bg-emerald-400/10'
+                            : 'border-white/15 hover:border-emerald-400/40 hover:bg-white/[0.03]'
                             } ${uploadMutation.isPending ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                         <input {...getInputProps()} />
                         <div className="flex flex-col items-center gap-3">
-                            <div className="p-3 bg-blue-100 text-blue-600 rounded-full">
+                            <div className="p-3 bg-emerald-400/10 text-emerald-400 rounded-full">
                                 <Upload size={24} />
                             </div>
                             <div>
-                                <p className="font-medium text-gray-900">
+                                <p className="font-medium text-white">
                                     {uploadMutation.isPending ? 'Uploading...' : 'Click to upload or drag and drop'}
                                 </p>
-                                <p className="text-sm text-gray-500 mt-1">CSV or JSON (max 10MB)</p>
+                                <p className="text-sm text-slate-500 mt-1">CSV or JSON (max 10MB)</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Dataset List */}
-                    <div className="flex-1 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-                        <div className="p-4 border-b border-gray-200 bg-gray-50">
-                            <h2 className="font-semibold text-gray-700 flex items-center gap-2">
+                    <div className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-sm overflow-hidden flex flex-col">
+                        <div className="p-4 border-b border-white/10 bg-white/[0.02]">
+                            <h2 className="font-semibold text-slate-300 flex items-center gap-2">
                                 <Database size={18} />
                                 Your Datasets
                             </h2>
@@ -149,10 +150,10 @@ export default function Datasets() {
                         <div className="flex-1 overflow-y-auto p-2 space-y-2">
                             {isLoading ? (
                                 <div className="flex justify-center py-8">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
                                 </div>
                             ) : datasets?.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500">
+                                <div className="text-center py-8 text-slate-500">
                                     <p>No datasets yet</p>
                                 </div>
                             ) : (
@@ -161,21 +162,21 @@ export default function Datasets() {
                                         key={dataset.id}
                                         onClick={() => handlePreview(dataset)}
                                         className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedDataset?.id === dataset.id
-                                            ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                                            ? 'border-emerald-400/50 bg-emerald-400/10 ring-1 ring-emerald-400/50'
+                                            : 'border-white/10 hover:border-emerald-400/30 hover:bg-white/[0.04]'
                                             }`}
                                     >
                                         <div className="flex items-start justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-white border border-gray-200 rounded-lg">
-                                                    <FileText size={20} className="text-blue-600" />
+                                                <div className="p-2 bg-white/5 border border-white/10 rounded-lg">
+                                                    <FileText size={20} className="text-emerald-400" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-medium text-gray-900 truncate max-w-[150px]">
+                                                    <h3 className="font-medium text-white truncate max-w-[150px]">
                                                         {dataset.name}
                                                     </h3>
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                                        <span className="uppercase bg-gray-100 px-1.5 py-0.5 rounded">
+                                                    <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                                        <span className="uppercase bg-white/5 px-1.5 py-0.5 rounded">
                                                             {dataset.file_type}
                                                         </span>
                                                         <span>•</span>
@@ -185,7 +186,7 @@ export default function Datasets() {
                                             </div>
                                             <button
                                                 onClick={(e) => handleDelete(dataset.id, e)}
-                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
                                             >
                                                 <Trash2 size={16} />
                                             </button>
@@ -198,17 +199,17 @@ export default function Datasets() {
                 </div>
 
                 {/* Right Panel: Preview */}
-                <div className="flex-1 bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+                <div className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col overflow-hidden">
                     {selectedDataset && showPreview ? (
                         <>
-                            <div className="p-6 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                        <FileText className="text-blue-600" />
+                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <FileText className="text-emerald-400" />
                                         {selectedDataset.name}
                                     </h2>
-                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                                        <span>Uploaded {formatDistanceToNow(new Date(selectedDataset.created_at))} ago</span>
+                                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
+                                        <span>Uploaded {formatDistanceToNow(parseApiDate(selectedDataset.created_at))} ago</span>
                                         <span>•</span>
                                         <span>{selectedDataset.row_count?.toLocaleString()} rows</span>
                                         <span>•</span>
@@ -220,7 +221,7 @@ export default function Datasets() {
                                         setSelectedDataset(null)
                                         setShowPreview(false)
                                     }}
-                                    className="p-2 text-gray-500 hover:bg-gray-200 rounded-lg"
+                                    className="p-2 text-slate-400 hover:bg-white/10 rounded-lg"
                                 >
                                     <X size={20} />
                                 </button>
@@ -229,30 +230,30 @@ export default function Datasets() {
                             <div className="flex-1 overflow-auto p-6">
                                 {previewMutation.isPending ? (
                                     <div className="flex items-center justify-center h-full">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
                                     </div>
                                 ) : previewData ? (
-                                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-50">
+                                    <div className="border border-white/10 rounded-lg overflow-hidden">
+                                        <table className="min-w-full divide-y divide-white/10">
+                                            <thead className="bg-white/[0.03]">
                                                 <tr>
                                                     {previewData.columns.map((col: string) => (
                                                         <th
                                                             key={col}
-                                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                            className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider"
                                                         >
                                                             {col}
                                                         </th>
                                                     ))}
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
+                                            <tbody className="divide-y divide-white/10">
                                                 {previewData.data.map((row: Record<string, any>, i: number) => (
-                                                    <tr key={i} className="hover:bg-gray-50">
+                                                    <tr key={i} className="hover:bg-white/[0.03]">
                                                         {previewData.columns.map((col: string) => (
                                                             <td
                                                                 key={`${i}-${col}`}
-                                                                className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                                                className="px-6 py-4 whitespace-nowrap text-sm text-slate-400"
                                                             >
                                                                 {String(row[col] ?? '')}
                                                             </td>
@@ -263,7 +264,7 @@ export default function Datasets() {
                                         </table>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                                    <div className="flex flex-col items-center justify-center h-full text-slate-500">
                                         <AlertCircle size={48} className="mb-4 opacity-50" />
                                         <p>Failed to load preview</p>
                                     </div>
@@ -271,11 +272,11 @@ export default function Datasets() {
                             </div>
                         </>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                            <div className="p-6 bg-gray-50 rounded-full mb-4">
+                        <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                            <div className="p-6 bg-white/5 rounded-full mb-4">
                                 <Eye size={48} className="opacity-50" />
                             </div>
-                            <p className="text-lg font-medium">Select a dataset to preview</p>
+                            <p className="text-lg font-medium text-slate-300">Select a dataset to preview</p>
                             <p className="text-sm mt-1">Click on any dataset from the list to view its contents</p>
                         </div>
                     )}

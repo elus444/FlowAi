@@ -4,23 +4,23 @@ import { useToastStore, type ToastType } from '@/store/toastStore'
 const STYLES: Record<ToastType, { icon: typeof CheckCircle2; classes: string; iconClasses: string }> = {
     success: {
         icon: CheckCircle2,
-        classes: 'bg-white border-green-200',
-        iconClasses: 'text-green-600',
+        classes: 'bg-slate-900 border-green-500/30',
+        iconClasses: 'text-green-400',
     },
     error: {
         icon: XCircle,
-        classes: 'bg-white border-red-200',
-        iconClasses: 'text-red-600',
+        classes: 'bg-slate-900 border-red-500/30',
+        iconClasses: 'text-red-400',
     },
     warning: {
         icon: AlertTriangle,
-        classes: 'bg-white border-yellow-200',
-        iconClasses: 'text-yellow-600',
+        classes: 'bg-slate-900 border-yellow-500/30',
+        iconClasses: 'text-yellow-400',
     },
     info: {
         icon: Info,
-        classes: 'bg-white border-blue-200',
-        iconClasses: 'text-blue-600',
+        classes: 'bg-slate-900 border-blue-500/30',
+        iconClasses: 'text-blue-400',
     },
 }
 
@@ -41,10 +41,10 @@ export default function Toaster() {
                         className={`animate-toast-in flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg ${style.classes}`}
                     >
                         <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${style.iconClasses}`} />
-                        <p className="flex-1 text-sm text-gray-800 whitespace-pre-line">{t.message}</p>
+                        <p className="flex-1 text-sm text-slate-200 whitespace-pre-line">{t.message}</p>
                         <button
                             onClick={() => dismiss(t.id)}
-                            className="shrink-0 text-gray-400 transition-colors hover:text-gray-600"
+                            className="shrink-0 text-slate-500 transition-colors hover:text-slate-300"
                             aria-label="Dismiss"
                         >
                             <X className="h-4 w-4" />

@@ -56,7 +56,7 @@ export default function ExecutionPanel() {
       <div className="fixed bottom-4 right-4 z-50">
         <button
           onClick={() => setIsMinimized(false)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-400 text-slate-950 font-semibold rounded-lg shadow-lg shadow-emerald-400/20 hover:bg-emerald-300 transition-colors"
         >
           {isExecuting ? <Activity className="w-4 h-4 animate-pulse" /> : <Terminal className="w-4 h-4" />}
           <span>
@@ -78,17 +78,17 @@ export default function ExecutionPanel() {
   // logs still needs to be fetched before there's anything to render).
   if ((selectedExecution || isLoadingDetails) && isExpanded) {
     return (
-      <div className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-[500px] h-[600px] max-h-[calc(100vh-2rem)] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
-          <span className="font-semibold text-sm text-gray-700">Execution Details</span>
+      <div className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-[500px] h-[600px] max-h-[calc(100vh-2rem)] bg-slate-950 border border-white/10 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/[0.03]">
+          <span className="font-semibold text-sm text-slate-200">Execution Details</span>
           <div className="flex items-center gap-1">
-            <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-gray-200 rounded"><ChevronDown size={16} /></button>
-            <button onClick={() => selectExecution(null)} className="p-1 hover:bg-gray-200 rounded"><X size={16} /></button>
+            <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-white/10 text-slate-300 rounded"><ChevronDown size={16} /></button>
+            <button onClick={() => selectExecution(null)} className="p-1 hover:bg-white/10 text-slate-300 rounded"><X size={16} /></button>
           </div>
         </div>
         {isLoadingDetails || !selectedExecution ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-400" />
           </div>
         ) : (
           <ExecutionDetails
@@ -102,28 +102,28 @@ export default function ExecutionPanel() {
 
   const getLevelIcon = (level: string) => {
     switch (level.toLowerCase()) {
-      case 'error': return <AlertCircle className="w-3.5 h-3.5 text-red-500" />
-      case 'warning': return <AlertCircle className="w-3.5 h-3.5 text-yellow-500" />
-      case 'info': return <Info className="w-3.5 h-3.5 text-blue-500" />
-      default: return <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+      case 'error': return <AlertCircle className="w-3.5 h-3.5 text-red-400" />
+      case 'warning': return <AlertCircle className="w-3.5 h-3.5 text-yellow-400" />
+      case 'info': return <Info className="w-3.5 h-3.5 text-blue-400" />
+      default: return <CheckCircle className="w-3.5 h-3.5 text-green-400" />
     }
   }
 
   const getLevelColor = (level: string) => {
     switch (level.toLowerCase()) {
-      case 'error': return 'bg-red-50 border-red-100'
-      case 'warning': return 'bg-yellow-50 border-yellow-100'
-      case 'info': return 'bg-blue-50 border-blue-100'
-      default: return 'bg-gray-50 border-gray-100'
+      case 'error': return 'bg-red-500/10 border-red-500/20'
+      case 'warning': return 'bg-yellow-500/10 border-yellow-500/20'
+      case 'info': return 'bg-blue-500/10 border-blue-500/20'
+      default: return 'bg-white/5 border-white/10'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle size={14} className="text-green-600" />
-      case 'failed': return <AlertCircle size={14} className="text-red-600" />
-      case 'running': return <Activity size={14} className="text-blue-600 animate-pulse" />
-      default: return <Clock size={14} className="text-gray-400" />
+      case 'completed': return <CheckCircle size={14} className="text-green-400" />
+      case 'failed': return <AlertCircle size={14} className="text-red-400" />
+      case 'running': return <Activity size={14} className="text-blue-400 animate-pulse" />
+      default: return <Clock size={14} className="text-slate-500" />
     }
   }
 
@@ -132,41 +132,41 @@ export default function ExecutionPanel() {
       <div className="fixed bottom-4 right-4 z-50">
         <button
           onClick={() => setIsExpanded(true)}
-          className="bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-gray-50"
+          className="bg-slate-950 border border-white/10 shadow-lg rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-white/5"
         >
-          <Terminal size={16} className="text-gray-600" />
-          <span className="font-medium text-sm text-gray-700">Execution Panel</span>
-          <ChevronUp size={16} className="text-gray-400" />
+          <Terminal size={16} className="text-slate-400" />
+          <span className="font-medium text-sm text-slate-200">Execution Panel</span>
+          <ChevronUp size={16} className="text-slate-500" />
         </button>
       </div>
     )
   }
 
   return (
-    <div className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-[400px] h-[500px] max-h-[calc(100vh-2rem)] bg-white border border-gray-200 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden transition-all duration-200 ease-in-out">
+    <div className="fixed bottom-4 right-4 w-[calc(100vw-2rem)] sm:w-[400px] h-[500px] max-h-[calc(100vh-2rem)] bg-slate-950 border border-white/10 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden transition-all duration-200 ease-in-out">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-gray-50 shrink-0">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-white/[0.03] shrink-0">
         <div className="flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-gray-600" />
-          <span className="font-semibold text-sm text-gray-800">Execution Panel</span>
+          <Terminal className="w-4 h-4 text-slate-400" />
+          <span className="font-semibold text-sm text-slate-200">Execution Panel</span>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-gray-200 rounded text-gray-500">
+          <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-white/10 rounded text-slate-400">
             <ChevronDown className="w-4 h-4" />
           </button>
-          <button onClick={() => setIsExpanded(false)} className="p-1 hover:bg-gray-200 rounded text-gray-500">
+          <button onClick={() => setIsExpanded(false)} className="p-1 hover:bg-white/10 rounded text-slate-400">
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 shrink-0">
+      <div className="flex border-b border-white/10 shrink-0">
         <button
           onClick={() => setActiveTab('current')}
           className={`flex-1 py-2 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${activeTab === 'current'
-            ? 'bg-white text-blue-600 border-b-2 border-blue-600'
-            : 'bg-gray-50 text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+            ? 'bg-white/[0.04] text-emerald-400 border-b-2 border-emerald-400'
+            : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.02]'
             }`}
         >
           <Play size={12} />
@@ -176,8 +176,8 @@ export default function ExecutionPanel() {
         <button
           onClick={() => setActiveTab('history')}
           className={`flex-1 py-2 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors ${activeTab === 'history'
-            ? 'bg-white text-blue-600 border-b-2 border-blue-600'
-            : 'bg-gray-50 text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+            ? 'bg-white/[0.04] text-emerald-400 border-b-2 border-emerald-400'
+            : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.02]'
             }`}
         >
           <History size={12} />
@@ -186,13 +186,13 @@ export default function ExecutionPanel() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden bg-white relative">
+      <div className="flex-1 overflow-hidden bg-slate-950 relative">
         {activeTab === 'current' ? (
           <div className="h-full overflow-y-auto p-3 space-y-2">
             {!currentExecutionId && executionLogs.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 text-center p-4">
-                <Play size={32} className="mb-2 opacity-20" />
-                <p className="text-sm">Ready to run</p>
+              <div className="h-full flex flex-col items-center justify-center text-slate-600 text-center p-4">
+                <Play size={32} className="mb-2 opacity-30" />
+                <p className="text-sm text-slate-400">Ready to run</p>
                 <p className="text-xs mt-1">Click "Run" in the toolbar to start execution</p>
               </div>
             ) : (
@@ -205,9 +205,9 @@ export default function ExecutionPanel() {
                     <div className="flex items-start gap-2">
                       <div className="mt-0.5">{getLevelIcon(log.level)}</div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 opacity-75">
+                        <div className="flex items-center gap-2 mb-1 text-slate-500">
                           {log.node_id && (
-                            <span className="px-1.5 py-0.5 bg-white/50 border border-black/5 rounded text-[10px] font-semibold">
+                            <span className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] font-semibold text-slate-300">
                               {log.node_id}
                             </span>
                           )}
@@ -215,13 +215,13 @@ export default function ExecutionPanel() {
                             {parseApiDate(log.timestamp).toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="text-gray-800 break-words leading-relaxed">{log.message}</p>
+                        <p className="text-slate-300 break-words leading-relaxed">{log.message}</p>
                         {log.data && Object.keys(log.data).length > 0 && (
                           <details className="mt-1.5">
-                            <summary className="cursor-pointer text-[10px] text-blue-600 hover:text-blue-800 font-sans font-medium select-none">
+                            <summary className="cursor-pointer text-[10px] text-emerald-400 hover:text-emerald-300 font-sans font-medium select-none">
                               View Data
                             </summary>
-                            <pre className="mt-1.5 p-2 bg-white rounded border border-gray-200 text-[10px] overflow-x-auto">
+                            <pre className="mt-1.5 p-2 bg-black/30 rounded border border-white/10 text-[10px] overflow-x-auto text-slate-400">
                               {JSON.stringify(log.data, null, 2)}
                             </pre>
                           </details>
@@ -238,45 +238,45 @@ export default function ExecutionPanel() {
           <div className="h-full overflow-y-auto">
             {isLoadingHistory ? (
               <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-400"></div>
               </div>
             ) : executionHistory.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 text-center p-4">
-                <History size={32} className="mb-2 opacity-20" />
-                <p className="text-sm">No execution history</p>
+              <div className="h-full flex flex-col items-center justify-center text-slate-600 text-center p-4">
+                <History size={32} className="mb-2 opacity-30" />
+                <p className="text-sm text-slate-400">No execution history</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-white/10">
                 {executionHistory.map((exec) => (
                   <button
                     key={exec.id}
                     onClick={() => loadExecutionDetails(exec.id)}
-                    className="w-full text-left p-3 hover:bg-gray-50 transition-colors flex items-center justify-between group"
+                    className="w-full text-left p-3 hover:bg-white/[0.03] transition-colors flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-1.5 rounded-full ${exec.status === 'completed' ? 'bg-green-50' :
-                        exec.status === 'failed' ? 'bg-red-50' : 'bg-gray-50'
+                      <div className={`p-1.5 rounded-full ${exec.status === 'completed' ? 'bg-green-500/10' :
+                        exec.status === 'failed' ? 'bg-red-500/10' : 'bg-white/5'
                         }`}>
                         {getStatusIcon(exec.status)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs font-medium uppercase ${exec.status === 'completed' ? 'text-green-700' :
-                            exec.status === 'failed' ? 'text-red-700' : 'text-gray-700'
+                          <span className={`text-xs font-medium uppercase ${exec.status === 'completed' ? 'text-green-400' :
+                            exec.status === 'failed' ? 'text-red-400' : 'text-slate-300'
                             }`}>
                             {exec.status}
                           </span>
-                          <span className="text-[10px] text-gray-400">•</span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-[10px] text-slate-600">•</span>
+                          <span className="text-xs text-slate-500">
                             {formatDistanceToNow(parseApiDate(exec.created_at), { addSuffix: true })}
                           </span>
                         </div>
-                        <div className="text-[10px] text-gray-400 mt-0.5 font-mono">
+                        <div className="text-[10px] text-slate-600 mt-0.5 font-mono">
                           ID: {exec.id.slice(0, 8)}...
                         </div>
                       </div>
                     </div>
-                    <ChevronDown size={14} className="text-gray-300 -rotate-90 opacity-0 group-hover:opacity-100 transition-all" />
+                    <ChevronDown size={14} className="text-slate-600 -rotate-90 opacity-0 group-hover:opacity-100 transition-all" />
                   </button>
                 ))}
               </div>

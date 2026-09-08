@@ -58,33 +58,53 @@
   }
 }
 
-/* ReactFlow custom styles */
+/* ReactFlow custom styles.
+   These per-type rules used to set light pastel backgrounds (bg-green-50
+   etc). They were silently winning over BaseNode.tsx's own Tailwind
+   classes on the exact same element -- ReactFlow auto-attaches a
+   `react-flow__node-<type>` class to every node's wrapper, and because
+   these rules sit after @tailwind utilities in this file's cascade order,
+   equal-specificity single-class selectors here beat component-level
+   utility classes. Rather than leave two competing sources of truth for
+   node background color, these now only handle shape/shadow -- the dark
+   background and per-type border color live in BaseNode.tsx/the
+   individual node components. */
 .react-flow__node {
-  @apply rounded-lg border-2 shadow-md;
-}
-
-.react-flow__node-trigger {
-  @apply border-green-500 bg-green-50;
-}
-
-.react-flow__node-llm {
-  @apply border-blue-500 bg-blue-50;
-}
-
-.react-flow__node-api {
-  @apply border-purple-500 bg-purple-50;
-}
-
-.react-flow__node-conditional {
-  @apply border-yellow-500 bg-yellow-50;
-}
-
-.react-flow__node-output {
-  @apply border-red-500 bg-red-50;
+  @apply rounded-lg border-2 shadow-lg;
 }
 
 .react-flow__handle {
   @apply h-3 w-3;
+}
+
+/* Controls (+/-/fit/lock) and MiniMap ship with light-mode styling by
+   default and don't expose per-icon color props -- overridden here to
+   match the dark canvas instead of sitting in a stark white box. */
+.react-flow__controls {
+  @apply overflow-hidden rounded-lg border border-white/10 shadow-lg;
+  background: theme('colors.slate.900');
+}
+
+.react-flow__controls-button {
+  background: theme('colors.slate.900');
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  fill: theme('colors.slate.300');
+}
+
+.react-flow__controls-button:hover {
+  background: theme('colors.slate.800');
+}
+
+.react-flow__controls-button svg {
+  fill: theme('colors.slate.300');
+}
+
+.react-flow__minimap {
+  @apply rounded-lg border border-white/10;
+}
+
+.react-flow__attribution {
+  @apply bg-transparent text-slate-600;
 }
 
 /* Toast enter animation */
