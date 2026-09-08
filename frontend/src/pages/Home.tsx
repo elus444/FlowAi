@@ -75,6 +75,61 @@ const STEPS = [
 // logos that aren't actually using the product would be misleading.
 const POWERED_BY = ['LangGraph', 'E2B Sandboxes', 'Google Gemini', 'OpenAI', 'Anthropic']
 
+// Everything below is defined once in a fixed 600x375 (16:10) coordinate
+// space, and both the node boxes and the SVG connector lines derive their
+// position from these same numbers -- converted to percentages for the
+// (percentage-positioned) HTML boxes, used directly for the SVG path
+// (given a matching viewBox). Previously the boxes were positioned with
+// hand-picked percentages while the connector paths used unrelated
+// hardcoded pixel coordinates in an SVG with no viewBox at all, so the
+// lines only ever lined up with the boxes by coincidence at one specific
+// rendered width -- everywhere else the "connections" visibly missed the
+// nodes entirely, which is exactly what read as "disconnected."
+const PREVIEW_VIEWBOX = { w: 600, h: 375 }
+
+const PREVIEW_NODES = [
+  { id: 'trigger', label: 'Trigger', sub: 'Start', x: 20, y: 161, w: 120, h: 52, color: 'green' },
+  { id: 'llm', label: 'LLM', sub: 'Gemini 3.6', x: 175, y: 64, w: 120, h: 52, color: 'blue' },
+  { id: 'conditional', label: 'Conditional', sub: 'Branch logic', x: 175, y: 259, w: 130, h: 52, color: 'amber' },
+  { id: 'api', label: 'API Call', sub: 'HTTP request', x: 340, y: 64, w: 120, h: 52, color: 'purple' },
+  { id: 'output', label: 'Output', sub: 'Final result', x: 490, y: 161, w: 100, h: 52, color: 'red' },
+] as const
+
+const PREVIEW_NODE_STYLES: Record<(typeof PREVIEW_NODES)[number]['color'], string> = {
+  green: 'border-green-500 bg-green-50 text-green-700',
+  blue: 'border-blue-500 bg-blue-50 text-blue-700',
+  amber: 'border-amber-500 bg-amber-50 text-amber-700',
+  purple: 'border-purple-500 bg-purple-50 text-purple-700',
+  red: 'border-red-500 bg-red-50 text-red-700',
+}
+
+function nodeById(id: string) {
+  const node = PREVIEW_NODES.find((n) => n.id === id)!
+  return { ...node, midY: node.y + node.h / 2 }
+}
+
+// Each connection runs from one node's right edge to the next node's left
+// edge -- computed from the same PREVIEW_NODES data, so a connector can
+// never drift out of sync with the boxes it's supposed to touch.
+const PREVIEW_EDGES = [
+  ['trigger', 'llm'],
+  ['trigger', 'conditional'],
+  ['llm', 'api'],
+  ['api', 'output'],
+  ['conditional', 'output'],
+] as const
+
+function edgePath(fromId: string, toId: string) {
+  const from = nodeById(fromId)
+  const to = nodeById(toId)
+  const x1 = from.x + from.w
+  const y1 = from.midY
+  const x2 = to.x
+  const y2 = to.midY
+  const midX = (x1 + x2) / 2
+  return `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`
+}
+
 function MiniCanvasPreview() {
   return (
     <div className="relative w-full aspect-[16/10] rounded-2xl border border-white/10 bg-gradient-to-br from-gray-50 to-white shadow-[0_0_120px_-20px_rgba(16,185,129,0.35)] overflow-hidden">
@@ -86,53 +141,36 @@ function MiniCanvasPreview() {
           backgroundSize: '24px 24px',
         }}
       />
-      <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none">
-        <path
-          d="M 110 90 C 180 90, 180 60, 250 60"
-          fill="none"
-          stroke="#93c5fd"
-          strokeWidth="2"
-        />
-        <path
-          d="M 110 90 C 180 90, 180 140, 250 140"
-          fill="none"
-          stroke="#93c5fd"
-          strokeWidth="2"
-        />
-        <path
-          d="M 370 60 C 430 60, 430 100, 490 100"
-          fill="none"
-          stroke="#93c5fd"
-          strokeWidth="2"
-        />
-        <path
-          d="M 370 140 C 430 140, 430 100, 490 100"
-          fill="none"
-          stroke="#93c5fd"
-          strokeWidth="2"
-        />
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox={`0 0 ${PREVIEW_VIEWBOX.w} ${PREVIEW_VIEWBOX.h}`}
+        preserveAspectRatio="none"
+      >
+        {PREVIEW_EDGES.map(([from, to]) => (
+          <path
+            key={`${from}-${to}`}
+            d={edgePath(from, to)}
+            fill="none"
+            stroke="#93c5fd"
+            strokeWidth="2"
+          />
+        ))}
       </svg>
 
-      <div className="absolute left-[6%] top-[32%] w-28 rounded-lg border-2 border-green-500 bg-green-50 px-3 py-2 shadow-md">
-        <p className="text-[10px] font-semibold text-green-700">Trigger</p>
-        <p className="text-[9px] text-green-600">Start</p>
-      </div>
-      <div className="absolute left-[34%] top-[14%] w-28 rounded-lg border-2 border-blue-500 bg-blue-50 px-3 py-2 shadow-md">
-        <p className="text-[10px] font-semibold text-blue-700">LLM</p>
-        <p className="text-[9px] text-blue-600">Gemini 3.6</p>
-      </div>
-      <div className="absolute left-[34%] top-[54%] w-28 rounded-lg border-2 border-yellow-500 bg-yellow-50 px-3 py-2 shadow-md">
-        <p className="text-[10px] font-semibold text-yellow-700">Conditional</p>
-        <p className="text-[9px] text-yellow-600">Branch logic</p>
-      </div>
-      <div className="absolute left-[62%] top-[14%] w-28 rounded-lg border-2 border-purple-500 bg-purple-50 px-3 py-2 shadow-md">
-        <p className="text-[10px] font-semibold text-purple-700">API Call</p>
-        <p className="text-[9px] text-purple-600">HTTP request</p>
-      </div>
-      <div className="absolute left-[86%] top-[34%] w-24 rounded-lg border-2 border-red-500 bg-red-50 px-3 py-2 shadow-md">
-        <p className="text-[10px] font-semibold text-red-700">Output</p>
-        <p className="text-[9px] text-red-600">Final result</p>
-      </div>
+      {PREVIEW_NODES.map((node) => (
+        <div
+          key={node.id}
+          className={`absolute rounded-lg border-2 px-3 py-2 shadow-md ${PREVIEW_NODE_STYLES[node.color]}`}
+          style={{
+            left: `${(node.x / PREVIEW_VIEWBOX.w) * 100}%`,
+            top: `${(node.y / PREVIEW_VIEWBOX.h) * 100}%`,
+            width: `${(node.w / PREVIEW_VIEWBOX.w) * 100}%`,
+          }}
+        >
+          <p className="text-[10px] font-semibold">{node.label}</p>
+          <p className="text-[9px] opacity-80">{node.sub}</p>
+        </div>
+      ))}
 
       <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-medium text-gray-500 shadow-sm border border-gray-200">
         <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
