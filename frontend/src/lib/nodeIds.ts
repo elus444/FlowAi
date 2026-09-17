@@ -25,6 +25,7 @@ export function getNodeCount(type: string): number {
 const SPECIAL_CASE_LABELS: Record<string, string> = {
   llm: 'LLM',
   api: 'API',
+  mcp: 'MCP',
 }
 
 export function getNodeTypeLabel(type: string): string {

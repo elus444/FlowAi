@@ -98,6 +98,12 @@ export interface NodeConfigData {
   headers?: Record<string, string>
   body?: Record<string, any>
 
+  // MCP node
+  mcp_server_url?: string
+  mcp_auth_token?: string
+  mcp_tool_name?: string
+  mcp_tool_arguments?: string
+
   // Conditional node
   condition?: string
   condition_type?: 'simple' | 'complex'

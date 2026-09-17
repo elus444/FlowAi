@@ -162,6 +162,17 @@ class WorkflowCompiler:
                 "    return state",
             ])
 
+        elif node_type == "mcp":
+            server_url = node_data.get("mcp_server_url", "")
+            tool_name = node_data.get("mcp_tool_name", "")
+            lines.extend([
+                f"    # MCP node - tool '{tool_name}' on {server_url}",
+                "    # TODO: Implement MCP tools/call",
+                "    state['current_node'] = '" + node_id + "'",
+                "    # state['data']['mcp_result'] = call_mcp_tool(...)",
+                "    return state",
+            ])
+
         elif node_type == "conditional":
             condition = node_data.get("condition", "")
             lines.extend([

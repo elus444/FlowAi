@@ -214,6 +214,74 @@ export default function NodeConfigPanel() {
           </div>
         )
 
+      case 'mcp':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-300">Label</label>
+              <input
+                {...register('label')}
+                className="w-full px-3 py-2 border border-white/10 bg-white/5 text-white rounded-md placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+                placeholder="MCP tool call name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-300">MCP Server URL</label>
+              <input
+                {...register('mcp_server_url')}
+                type="url"
+                className="w-full px-3 py-2 border border-white/10 bg-white/5 text-white rounded-md placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+                placeholder="https://your-server.example.com/mcp"
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                Streamable HTTP transport endpoint (JSON-RPC 2.0)
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-300">
+                Auth Token <span className="text-slate-500">(optional)</span>
+              </label>
+              <input
+                {...register('mcp_auth_token')}
+                type="password"
+                className="w-full px-3 py-2 border border-white/10 bg-white/5 text-white rounded-md placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+                placeholder="Bearer token, if the server requires one"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-300">Tool Name</label>
+              <input
+                {...register('mcp_tool_name')}
+                className="w-full px-3 py-2 border border-white/10 bg-white/5 text-white rounded-md placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+                placeholder="e.g. search_workflows"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-300">Tool Arguments</label>
+              <textarea
+                {...register('mcp_tool_arguments')}
+                className="w-full px-3 py-2 border border-white/10 bg-white/5 text-white rounded-md font-mono text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+                rows={4}
+                placeholder={'{"query": {{topic}}, "limit": 5}'}
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                JSON object. Use {'{{variable}}'} unquoted (no manual quotes around it) to
+                insert a state value of any type -- e.g. {'{"query": {{topic}}}'}, not{' '}
+                {'{"query": "{{topic}}"}'}.
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-slate-300">Output Key</label>
+              <input
+                {...register('output_key')}
+                className="w-full px-3 py-2 border border-white/10 bg-white/5 text-white rounded-md placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 focus:border-emerald-400/50"
+                placeholder="mcp_result"
+                defaultValue="mcp_result"
+              />
+            </div>
+          </div>
+        )
+
       case 'conditional':
         return (
           <div className="space-y-4">

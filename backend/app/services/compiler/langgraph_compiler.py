@@ -1,6 +1,8 @@
 from typing import Dict, Any, List
 from jinja2 import Template
 
+from app.core.config import settings
+
 
 class LangGraphCompiler:
     """
@@ -227,9 +229,10 @@ class LangGraphCompiler:
                 "import os",
             ])
 
-        # Check for API nodes
+        # Check for API and MCP nodes (both use httpx for HTTP calls)
         has_api_nodes = any(n["type"] == "api" for n in nodes)
-        if has_api_nodes:
+        has_mcp_nodes = any(n["type"] == "mcp" for n in nodes)
+        if has_api_nodes or has_mcp_nodes:
             imports.append("import httpx")
 
         # Check for Dataset nodes
@@ -361,6 +364,8 @@ class LangGraphCompiler:
                 func = self._generate_llm_node(node)
             elif node["type"] == "api":
                 func = self._generate_api_node(node)
+            elif node["type"] == "mcp":
+                func = self._generate_mcp_node(node)
             elif node["type"] == "trigger":
                 func = self._generate_trigger_node(node)
             elif node["type"] == "output":
@@ -544,6 +549,160 @@ class LangGraphCompiler:
             "type": "NODE_ERROR",
             "node_id": "{node_id}",
             "node_type": "api",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }}), file=sys.stderr, flush=True)
+        raise'''
+
+    def _generate_mcp_node(self, node: Dict) -> str:
+        """Generate MCP node function.
+
+        Calls a tool on a remote MCP server over the Streamable HTTP
+        transport (JSON-RPC 2.0): initialize -> tools/call, echoing back
+        Mcp-Session-Id if the server issues one. A server may answer with
+        a plain JSON body or with an SSE-framed "event: message\\ndata:
+        {...}" response (both are valid per the spec), so both are parsed.
+        Only httpx is required -- already installed in every sandbox --
+        so no extra dependency install is needed for this node type.
+        """
+        node_id = node["id"]
+        config = node.get("data", {})
+        server_url = config.get("mcp_server_url", "")
+        auth_token = config.get("mcp_auth_token", "")
+        tool_name = config.get("mcp_tool_name", "")
+        tool_arguments = config.get("mcp_tool_arguments", "{}") or "{}"
+        output_key = config.get("output_key", "mcp_result")
+        timeout_seconds = settings.MCP_TIMEOUT
+
+        if output_key:
+            output_key = self._sanitize_identifier(output_key)
+
+        return f'''def {node_id}(state: WorkflowState) -> dict:
+    """MCP Node: {node_id} -- calls tool "{tool_name}" on an MCP server"""
+    import sys
+    import json
+    import re
+    from datetime import datetime
+
+    # Log node start
+    print(json.dumps({{
+        "type": "NODE_START",
+        "node_id": "{node_id}",
+        "node_type": "mcp",
+        "timestamp": datetime.utcnow().isoformat()
+    }}), file=sys.stderr, flush=True)
+
+    try:
+        server_url = "{server_url}"
+        auth_token = "{auth_token}"
+        tool_name = "{tool_name}"
+
+        # Substitute {{{{state_var}}}} placeholders in the arguments
+        # template with values from workflow state. Placeholders are
+        # written *unquoted* in the template (e.g. {{{{"q": {{{{topic}}}}}}}})
+        # -- json.dumps() adds quotes for strings and leaves numbers/
+        # booleans bare, so the same {{{{var}}}} works for any value type.
+        arguments_template = {tool_arguments!r}
+
+        def replace_var(match):
+            var_name = match.group(1)
+            if var_name not in state:
+                return match.group(0)
+            return json.dumps(state.get(var_name))
+
+        arguments_json = re.sub(r'\\{{\\{{(\\w+)\\}}\\}}', replace_var, arguments_template)
+        tool_arguments = json.loads(arguments_json) if arguments_json.strip() else {{}}
+
+        headers = {{
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+        }}
+        if auth_token:
+            headers["Authorization"] = f"Bearer {{auth_token}}"
+
+        def parse_rpc_response(response):
+            """An MCP HTTP response is either a plain JSON body or an
+            SSE stream ("event: message\\ndata: {{...}}"). Read whichever
+            was actually sent rather than assuming one or the other."""
+            content_type = response.headers.get("content-type", "")
+            if "text/event-stream" in content_type:
+                for line in response.text.splitlines():
+                    if line.startswith("data:"):
+                        return json.loads(line[len("data:"):].strip())
+                raise ValueError("No data: line in SSE response")
+            return response.json()
+
+        with httpx.Client(timeout={timeout_seconds}) as client:
+            # 1. initialize -- required by the MCP lifecycle before any
+            #    other call; capture Mcp-Session-Id for stateful servers.
+            init_response = client.post(
+                server_url,
+                headers=headers,
+                json={{
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "initialize",
+                    "params": {{
+                        "protocolVersion": "2024-11-05",
+                        "capabilities": {{}},
+                        "clientInfo": {{"name": "flowai", "version": "1.0"}},
+                    }},
+                }},
+            )
+            init_response.raise_for_status()
+            parse_rpc_response(init_response)  # surfaces init errors early
+
+            session_id = init_response.headers.get("mcp-session-id")
+            call_headers = dict(headers)
+            if session_id:
+                call_headers["Mcp-Session-Id"] = session_id
+
+            # 2. tools/call -- invoke the actual tool.
+            call_response = client.post(
+                server_url,
+                headers=call_headers,
+                json={{
+                    "jsonrpc": "2.0",
+                    "id": 2,
+                    "method": "tools/call",
+                    "params": {{"name": tool_name, "arguments": tool_arguments}},
+                }},
+            )
+            call_response.raise_for_status()
+            rpc_result = parse_rpc_response(call_response)
+
+            if "error" in rpc_result:
+                raise RuntimeError(f"MCP tool error: {{rpc_result['error']}}")
+
+            result = rpc_result.get("result", {{}})
+            # Prefer structuredContent when the server provides it; fall
+            # back to concatenating the text parts of content[].
+            if "structuredContent" in result:
+                tool_output = result["structuredContent"]
+            else:
+                parts = [
+                    item.get("text", "")
+                    for item in result.get("content", [])
+                    if item.get("type") == "text"
+                ]
+                tool_output = "\\n".join(parts) if parts else result
+
+        # Log node completion
+        print(json.dumps({{
+            "type": "NODE_COMPLETE",
+            "node_id": "{node_id}",
+            "node_type": "mcp",
+            "timestamp": datetime.utcnow().isoformat()
+        }}), file=sys.stderr, flush=True)
+
+        return {{"{output_key}": tool_output}}
+
+    except Exception as e:
+        # Log node error
+        print(json.dumps({{
+            "type": "NODE_ERROR",
+            "node_id": "{node_id}",
+            "node_type": "mcp",
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
         }}), file=sys.stderr, flush=True)

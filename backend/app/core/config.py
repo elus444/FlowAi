@@ -31,11 +31,12 @@ class Settings(BaseSettings):
     E2B_API_KEY: str = ""
     E2B_TEMPLATE_ID: str = ""  # Optional: Custom template ID for faster execution
 
-    # MCP Configuration
-    MCP_ENABLED: bool = False
-    MCP_SERVER_URL: str = ""  # External MCP server URL (optional)
-    MCP_API_KEY: str = ""  # API key for external MCP if required
-    MCP_TIMEOUT: int = 30  # Timeout for MCP requests in seconds
+    # MCP (Model Context Protocol) node default request timeout, in
+    # seconds. Each MCP node carries its own server URL/auth token
+    # (there's no single global MCP server), so this is the only
+    # instance-wide MCP setting there is -- it just sets how long a
+    # compiled MCP node's httpx client waits before timing out.
+    MCP_TIMEOUT: int = 30
 
     # Railway specific
     RAILWAY_ENVIRONMENT: str = ""  # Set by Railway automatically
@@ -53,6 +54,15 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        # Render (or any host) may still have env vars set for fields a
+        # later change removed from this class (e.g. the old single-
+        # global-server MCP_ENABLED/MCP_SERVER_URL/MCP_API_KEY, replaced
+        # by per-node MCP config) -- pydantic-settings' default is to
+        # hard-fail startup on any unrecognized env var, which would take
+        # the whole backend down on deploy rather than just dropping the
+        # stale setting. Ignoring unknown vars is the safer default for
+        # a service whose env is configured outside this repo.
+        extra = "ignore"
 
 
 settings = Settings()

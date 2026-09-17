@@ -1,4 +1,4 @@
-import { Play, Brain, Globe, GitBranch, FileOutput, Database, X } from 'lucide-react'
+import { Play, Brain, Globe, Plug, GitBranch, FileOutput, Database, X } from 'lucide-react'
 import { useWorkflowStore } from '@/store/workflowStore'
 
 interface NodePaletteProps {
@@ -42,6 +42,13 @@ const nodeDefinitions = [
     icon: Globe,
     color: 'bg-purple-500/10 border-purple-500/30 text-purple-400',
     description: 'Make HTTP request',
+  },
+  {
+    type: 'mcp',
+    label: 'MCP Tool',
+    icon: Plug,
+    color: 'bg-teal-500/10 border-teal-500/30 text-teal-400',
+    description: 'Call a tool on an MCP server',
   },
   {
     type: 'conditional',
